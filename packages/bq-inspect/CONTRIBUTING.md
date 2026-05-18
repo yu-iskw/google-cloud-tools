@@ -1,6 +1,6 @@
 # Contributing to bq-inspect
 
-This document is for **developers** working on `bq-inspect` in this monorepo’s `packages/bq-inspect` workspace. End-user documentation lives in [README.md](README.md).
+This document is for **developers** working on `bq-inspect` in this monorepo's `packages/bq-inspect` workspace. End-user documentation lives in [README.md](README.md).
 
 ## Prerequisites
 
@@ -61,7 +61,7 @@ Published usage strings live in:
 
 **Rule:** Any new or changed CLI flag must:
 
-1. Update `parseArgs` (and validation) in the relevant command under [`src/commands/`](src/commands/).
+1. Update `parseArgs` (and validation) in the relevant command under [`src/commands/`](src/commands/) (for example `jobs/get.ts`, `tables/list.ts`).
 2. Update the matching block in `cli-usage.ts`.
 3. Update [README.md](README.md) if the flag is user-facing in examples or narrative.
 
@@ -69,7 +69,7 @@ Keep [README.md](README.md) examples aligned with `cli-usage.ts`; end users trea
 
 ## Architecture (minimal hexagonal)
 
-- **`commands/`** — Thin CLI adapters: parse flags, build the BigQuery client, call application functions.
+- **`commands/`** — Thin CLI adapters grouped by resource (`jobs/`, `datasets/`, `tables/`), plus shared `command-shared.ts`, `schema-flags.ts`, and meta `schema.ts`: parse flags, build the BigQuery client, call application functions.
 - **`core/`** — Use cases (`inspect`, `list`, `catalog`) plus pure helpers (selector, projection, redaction, filters, presets).
 - **`bigquery/`** — Outbound port types (`BigQueryInspectionClient`, `BigQueryJobClient`) and the Google SDK adapter (`SdkBigQueryClient`).
 - **`schemas/`** — JSON Schema contracts for agents; [`command-schemas.ts`](src/schemas/command-schemas.ts) resolves per-command schemas for `--input-schema` / `--output-schema`.
@@ -78,7 +78,7 @@ Keep [README.md](README.md) examples aligned with `cli-usage.ts`; end users trea
 ## Package layout (`src/`)
 
 - `bigquery/` — GCP client adapters and port interfaces
-- `commands/` — CLI subcommands
+- `commands/` — CLI subcommands (`jobs/`, `datasets/`, `tables/`, plus shared `command-shared.ts`, `schema-flags.ts`, `schema.ts`)
 - `core/inspect` — Job fetch orchestration (`inspectJobs`)
 - `core/list` — `jobs list` filtering and envelope
 - `core/catalog` — Dataset/table metadata reads

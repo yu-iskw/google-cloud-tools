@@ -2,21 +2,20 @@ import { parseArgs } from 'node:util';
 
 /* eslint-disable security/detect-object-injection -- label keys come from validated KEY=VALUE CLI pairs */
 
-import { normalizeDelegateList, normalizeOptionalTrimmed } from '../bigquery/create-auth-client';
-import { listJobs } from '../core/list/list-jobs';
-import { BqInspectFailure, createBqInspectError } from '../core/shared/errors';
-
+import { normalizeDelegateList, normalizeOptionalTrimmed } from '../../bigquery/create-auth-client';
+import { listJobs } from '../../core/list/list-jobs';
+import { BqInspectFailure, createBqInspectError } from '../../core/shared/errors';
 import {
   assertJsonCliFormat,
   createSdkInspectionClientFromCli,
   requireCliString,
-} from './command-shared';
-import { resolveSchemaFlag } from './schema-flags';
+} from '../command-shared';
+import { resolveSchemaFlag } from '../schema-flags';
 
-import type { BigQueryInspectionClient, ListJobsRequest } from '../bigquery/bigquery-job-client';
-import type { JobFilters } from '../core/list/filter-jobs';
-import type { jobsListInputSchema } from '../schemas/input-schema';
-import type { jobsListOutputSchema } from '../schemas/output-schema';
+import type { BigQueryInspectionClient, ListJobsRequest } from '../../bigquery/bigquery-job-client';
+import type { JobFilters } from '../../core/list/filter-jobs';
+import type { jobsListInputSchema } from '../../schemas/input-schema';
+import type { jobsListOutputSchema } from '../../schemas/output-schema';
 
 export interface JobsListCommandOptions {
   client?: BigQueryInspectionClient;

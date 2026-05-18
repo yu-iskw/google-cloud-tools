@@ -156,7 +156,7 @@ These selectors are intentionally conservative; add fields only as needed.
 
 ## Library (TypeScript)
 
-This package also exports TypeScript APIs (inspect/list/catalog helpers, types, JSON Schema constants). See published `types` and `exports` on npm, or the source entry [`src/index.ts`](src/index.ts). For working on the tool in this repository, see [CONTRIBUTING.md](CONTRIBUTING.md).
+This package also exports TypeScript APIs (inspect/list/catalog helpers, types, JSON Schema constants). See published `types` and `exports` on npm, or the source entry [`src/index.ts`](src/index.ts). For development in this monorepo, see [repository CONTRIBUTING](../../CONTRIBUTING.md) and [bq-inspect CONTRIBUTING](CONTRIBUTING.md).
 
 ## Security notes
 

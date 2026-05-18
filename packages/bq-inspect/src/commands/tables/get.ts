@@ -1,17 +1,16 @@
 import { parseArgs } from 'node:util';
 
-import { getTableMetadata } from '../core/catalog/catalog';
-
+import { getTableMetadata } from '../../core/catalog/catalog';
 import {
   assertJsonCliFormat,
   createSdkInspectionClientFromCli,
   requireCliString,
-} from './command-shared';
-import { resolveSchemaFlag } from './schema-flags';
+} from '../command-shared';
+import { resolveSchemaFlag } from '../schema-flags';
 
-import type { BigQueryInspectionClient } from '../bigquery/bigquery-job-client';
-import type { tablesGetInputSchema } from '../schemas/input-schema';
-import type { catalogResourceOutputSchema } from '../schemas/output-schema';
+import type { BigQueryInspectionClient } from '../../bigquery/bigquery-job-client';
+import type { tablesGetInputSchema } from '../../schemas/input-schema';
+import type { catalogResourceOutputSchema } from '../../schemas/output-schema';
 
 export interface TablesGetCommandOptions {
   client?: BigQueryInspectionClient;

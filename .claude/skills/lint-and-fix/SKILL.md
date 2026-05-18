@@ -21,12 +21,22 @@ Trunk in CI also runs ESLint; direct `lint:eslint` gives **faster scoped feedbac
 
 ## Scope convention
 
-When the parent task names a package or directory, pass it after `--`:
+Scope ESLint to the **smallest path that covers your edits** (repository root as cwd):
 
-- Example: `pnpm lint:eslint -- packages/bq-inspect/src`
-- Omit the path only for changes that touch multiple packages or repo-wide config.
+- One package: `packages/<name>/src` (or `packages/<name>` if you changed files outside `src/`)
+- Several packages: `packages/` or omit the path
+- Root config/tooling only: the file(s) you changed (e.g. `eslint.config.mjs`) or omit the path
 
-See [packages/bq-inspect/CONTRIBUTING.md](../../../packages/bq-inspect/CONTRIBUTING.md) for package-local examples.
+Examples:
+
+```bash
+pnpm lint:eslint -- packages/<name>/src
+pnpm format:eslint -- eslint.config.mjs
+```
+
+Omit the path only when changes span multiple packages or repo-wide config.
+
+See [CONTRIBUTING.md](../../../CONTRIBUTING.md) for workspace commands and [AGENTS.md](../../../AGENTS.md) for the recommended lint order. Package-specific PR checklists live under `packages/*/CONTRIBUTING.md`.
 
 ## Loop logic
 
@@ -46,11 +56,17 @@ See [packages/bq-inspect/CONTRIBUTING.md](../../../packages/bq-inspect/CONTRIBUT
 
 ## Examples
 
-### Scenario: Scoped package work (bq-inspect)
+### Scenario: Scoped package work
 
-1. `pnpm format:eslint -- packages/bq-inspect/src`
-2. `pnpm lint:eslint -- packages/bq-inspect/src` — fix any remaining issues manually or re-run format:eslint if applicable.
-3. `pnpm format` then `pnpm lint` for full Trunk + Knip alignment when needed.
+1. `pnpm format:eslint -- packages/<name>/src`
+2. `pnpm lint:eslint -- packages/<name>/src` — fix remaining issues or re-run format:eslint.
+3. `pnpm format` then `pnpm lint` when Trunk/Knip alignment is needed.
+
+### Scenario: Repo-wide or multi-package changes
+
+1. `pnpm format:eslint` (no path) or `pnpm format:eslint -- packages/`
+2. `pnpm lint:eslint` with the same scope.
+3. `pnpm format` then `pnpm lint`; run `pnpm knip` if dependencies or exports changed.
 
 ### Scenario: Format-only drift after ESLint is clean
 

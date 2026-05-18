@@ -5,12 +5,12 @@ import path from 'node:path';
 
 import { resolveHelpText, stripTrailingHelpFlags } from './cli-help';
 import { GLOBAL_USAGE } from './cli-usage';
-import { runDatasetsGet } from './commands/datasets-get';
-import { runJobsGet } from './commands/jobs-get';
-import { runJobsList } from './commands/jobs-list';
+import { runDatasetsGet } from './commands/datasets/get';
+import { runJobsGet } from './commands/jobs/get';
+import { runJobsList } from './commands/jobs/list';
 import { runSchemaCommand } from './commands/schema';
-import { runTablesGet } from './commands/tables-get';
-import { runTablesList } from './commands/tables-list';
+import { runTablesGet } from './commands/tables/get';
+import { runTablesList } from './commands/tables/list';
 import { BqInspectFailure, createBqInspectError, getExitCode } from './core/shared/errors';
 
 import type { BqInspectError } from './core/shared/types';

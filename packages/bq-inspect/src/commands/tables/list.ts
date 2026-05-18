@@ -1,17 +1,16 @@
 import { parseArgs } from 'node:util';
 
-import { listTablesMetadata } from '../core/catalog/catalog';
-
+import { listTablesMetadata } from '../../core/catalog/catalog';
 import {
   assertJsonCliFormat,
   createSdkInspectionClientFromCli,
   requireCliString,
-} from './command-shared';
-import { resolveSchemaFlag } from './schema-flags';
+} from '../command-shared';
+import { resolveSchemaFlag } from '../schema-flags';
 
-import type { BigQueryInspectionClient } from '../bigquery/bigquery-job-client';
-import type { tablesListInputSchema } from '../schemas/input-schema';
-import type { tablesListOutputSchema } from '../schemas/output-schema';
+import type { BigQueryInspectionClient } from '../../bigquery/bigquery-job-client';
+import type { tablesListInputSchema } from '../../schemas/input-schema';
+import type { tablesListOutputSchema } from '../../schemas/output-schema';
 
 export interface TablesListCommandOptions {
   client?: BigQueryInspectionClient;

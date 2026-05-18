@@ -1,17 +1,16 @@
 import { parseArgs } from 'node:util';
 
-import { getDatasetMetadata } from '../core/catalog/catalog';
-
+import { getDatasetMetadata } from '../../core/catalog/catalog';
 import {
   assertJsonCliFormat,
   createSdkInspectionClientFromCli,
   requireCliString,
-} from './command-shared';
-import { resolveSchemaFlag } from './schema-flags';
+} from '../command-shared';
+import { resolveSchemaFlag } from '../schema-flags';
 
-import type { BigQueryInspectionClient } from '../bigquery/bigquery-job-client';
-import type { datasetsGetInputSchema } from '../schemas/input-schema';
-import type { catalogResourceOutputSchema } from '../schemas/output-schema';
+import type { BigQueryInspectionClient } from '../../bigquery/bigquery-job-client';
+import type { datasetsGetInputSchema } from '../../schemas/input-schema';
+import type { catalogResourceOutputSchema } from '../../schemas/output-schema';
 
 export interface DatasetsGetCommandOptions {
   client?: BigQueryInspectionClient;

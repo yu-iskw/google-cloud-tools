@@ -4,17 +4,17 @@ import path from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
-import { jobPresetSelectors } from '../core/presets/job-presets';
-import { BqInspectFailure } from '../core/shared/errors';
-import { FixtureJobClient } from '../test-support/fixture-job-client';
+import { jobPresetSelectors } from '../../core/presets/job-presets';
+import { BqInspectFailure } from '../../core/shared/errors';
+import { FixtureJobClient } from '../../test-support/fixture-job-client';
 
-import { runJobsGet } from './jobs-get';
+import { runJobsGet } from './get';
 
-import type { InspectJobResponse } from '../core/shared/types';
+import type { InspectJobResponse } from '../../core/shared/types';
 
 describe('runJobsGet', () => {
   it('parses repeated --job-id values into multiple JobRefs', async () => {
-    const fixturePath = path.join(__dirname, '..', 'fixtures', 'successful-query-job.json');
+    const fixturePath = path.join(__dirname, '..', '..', 'fixtures', 'successful-query-job.json');
     const job = JSON.parse(readFileSync(fixturePath, 'utf8')) as Record<string, unknown>;
     const client = new FixtureJobClient(
       new Map([
@@ -53,7 +53,7 @@ describe('runJobsGet', () => {
   });
 
   it('applies --preset diagnostic as the selector string', async () => {
-    const fixturePath = path.join(__dirname, '..', 'fixtures', 'successful-query-job.json');
+    const fixturePath = path.join(__dirname, '..', '..', 'fixtures', 'successful-query-job.json');
     const job = JSON.parse(readFileSync(fixturePath, 'utf8')) as Record<string, unknown>;
     const client = new FixtureJobClient(new Map([['job_a', job]]));
 
@@ -93,7 +93,7 @@ describe('runJobsGet', () => {
   });
 
   it('echoes impersonation flags on the response request envelope', async () => {
-    const fixturePath = path.join(__dirname, '..', 'fixtures', 'successful-query-job.json');
+    const fixturePath = path.join(__dirname, '..', '..', 'fixtures', 'successful-query-job.json');
     const job = JSON.parse(readFileSync(fixturePath, 'utf8')) as Record<string, unknown>;
     const client = new FixtureJobClient(new Map([['job_a', job]]));
 

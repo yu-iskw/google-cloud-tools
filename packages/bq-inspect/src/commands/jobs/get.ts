@@ -1,21 +1,20 @@
 import { parseArgs } from 'node:util';
 
-import { normalizeDelegateList, normalizeOptionalTrimmed } from '../bigquery/create-auth-client';
-import { inspectJobs } from '../core/inspect/inspect-jobs';
-import { resolveJobPreset } from '../core/presets/job-presets';
-import { BqInspectFailure, createBqInspectError } from '../core/shared/errors';
-
+import { normalizeDelegateList, normalizeOptionalTrimmed } from '../../bigquery/create-auth-client';
+import { inspectJobs } from '../../core/inspect/inspect-jobs';
+import { resolveJobPreset } from '../../core/presets/job-presets';
+import { BqInspectFailure, createBqInspectError } from '../../core/shared/errors';
 import {
   assertJsonCliFormat,
   createSdkInspectionClientFromCli,
   requireCliString,
-} from './command-shared';
-import { resolveSchemaFlag } from './schema-flags';
+} from '../command-shared';
+import { resolveSchemaFlag } from '../schema-flags';
 
-import type { BigQueryJobClient } from '../bigquery/bigquery-job-client';
-import type { JobRef, RedactionMode } from '../core/shared/types';
-import type { jobsGetInputSchema } from '../schemas/input-schema';
-import type { jobsGetOutputSchema } from '../schemas/output-schema';
+import type { BigQueryJobClient } from '../../bigquery/bigquery-job-client';
+import type { JobRef, RedactionMode } from '../../core/shared/types';
+import type { jobsGetInputSchema } from '../../schemas/input-schema';
+import type { jobsGetOutputSchema } from '../../schemas/output-schema';
 
 export interface JobsGetCommandOptions {
   client?: BigQueryJobClient;

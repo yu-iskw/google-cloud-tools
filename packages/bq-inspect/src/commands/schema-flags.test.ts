@@ -2,11 +2,11 @@ import { describe, expect, it } from 'vitest';
 
 import { BqInspectFailure } from '../core/shared/errors';
 
-import { runDatasetsGet } from './datasets-get';
-import { runJobsGet } from './jobs-get';
-import { runJobsList } from './jobs-list';
-import { runTablesGet } from './tables-get';
-import { runTablesList } from './tables-list';
+import { runDatasetsGet } from './datasets/get';
+import { runJobsGet } from './jobs/get';
+import { runJobsList } from './jobs/list';
+import { runTablesGet } from './tables/get';
+import { runTablesList } from './tables/list';
 
 describe('per-command schema flags', () => {
   it('jobs get --input-schema returns input schema without job ids', async () => {
