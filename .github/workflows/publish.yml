@@ -28,55 +28,36 @@ permissions:
   id-token: write
 
 jobs:
-  check-token:
-    name: Check if the NPM_TOKEN is set
+  validate-release-tag:
+    name: Verify release tag matches package version
+    if: github.event_name == 'release'
     runs-on: ubuntu-latest
-    steps:
-      - name: Check if the NPM_TOKEN is set
-        env:
-          NODE_AUTH_TOKEN: '${{ secrets.NPM_TOKEN }}'
-        run: |
-          if [ -z "${NODE_AUTH_TOKEN}" ]; then
-            echo "NPM_TOKEN is not set"
-            exit 1
-          fi
-  publish:
-    needs:
-      - check-token
-    name: Publish to npm
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
-    defaults:
-      run:
-        shell: bash
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-      - uses: step-security/harden-runner@8d3c67de8e2fe68ef647c8db1e6a09f647780f40 # v2.19.0
-        with:
-          egress-policy: audit
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version-file: .node-version
-          registry-url: https://registry.npmjs.org
-          # TODO: Replace with your scope
-          scope: ''
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-      - name: Install dependencies
+
+      - name: Verify release tag
         run: |
-          pnpm install --frozen-lockfile
-      - name: Build package
-        run: |
-          pnpm build
-      - name: Run tests
-        run: |
-          pnpm test
-      - name: Publish to npm
-        env:
-          NODE_AUTH_TOKEN: '${{ secrets.NPM_TOKEN }}'
-        run: |
-          pnpm -r publish --no-git-checks --access public
+          PKG_VERSION=$(node -p "require('./packages/bq-inspect/package.json').version")
+          TAG="${{ github.event.release.tag_name }}"
+          EXPECTED="bq-inspect-v${PKG_VERSION}"
+          if [ "${TAG}" != "${EXPECTED}" ]; then
+            echo "Release tag must be ${EXPECTED}, got ${TAG}"
+            exit 1
+          fi
+
+  publish-bq-inspect:
+    name: Publish bq-inspect to npm
+    needs: validate-release-tag
+    if: >-
+      always() &&
+      (needs.validate-release-tag.result == 'success' ||
+       needs.validate-release-tag.result == 'skipped')
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/_reusable-publish-package.yml
+    with:
+      package_filter: bq-inspect
+      package_directory: packages/bq-inspect
+      test_path: packages/bq-inspect

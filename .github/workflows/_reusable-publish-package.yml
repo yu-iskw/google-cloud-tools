@@ -1,0 +1,93 @@
+# Copyright 2026 yu-iskw
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: Reusable publish package
+
+on:
+  workflow_call:
+    inputs:
+      package_filter:
+        description: pnpm filter name (package name in package.json)
+        required: true
+        type: string
+      package_directory:
+        description: Path to the package directory (for npm pack --dry-run)
+        required: true
+        type: string
+      test_path:
+        description: Path passed to pnpm test for scoped unit tests
+        required: false
+        type: string
+        default: packages/bq-inspect
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: publish-${{ inputs.package_filter }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish ${{ inputs.package_filter }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Harden Runner
+        uses: step-security/harden-runner@8d3c67de8e2fe68ef647c8db1e6a09f647780f40 # v2.19.0
+        with:
+          egress-policy: audit
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .node-version
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build package
+        run: pnpm --filter "${{ inputs.package_filter }}" build
+
+      - name: Run tests
+        run: pnpm test -- "${{ inputs.test_path }}"
+
+      - name: Verify publish tarball contents
+        working-directory: ${{ inputs.package_directory }}
+        run: npm pack --dry-run
+
+      - name: Ensure npm CLI supports OIDC
+        run: |
+          NPM_MIN_VERSION="11.5.1"
+          if [ "$(printf '%s\n' "${NPM_MIN_VERSION}" "$(npm --version)" | sort -V | tail -n1)" = "${NPM_MIN_VERSION}" ]; then
+            echo "npm $(npm --version) < ${NPM_MIN_VERSION}; upgrading..."
+            npm install -g "npm@${NPM_MIN_VERSION}"
+          fi
+          echo "Using npm $(npm --version)"
+
+      - name: Publish to npm (OIDC)
+        env:
+          NODE_AUTH_TOKEN: ''
+        run: pnpm --filter "${{ inputs.package_filter }}" publish --no-git-checks --access public

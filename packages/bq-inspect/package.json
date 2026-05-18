@@ -1,8 +1,16 @@
 {
   "name": "bq-inspect",
-  "version": "0.2.0",
+  "version": "0.1.0",
   "description": "Read-only BigQuery job inspection CLI and TypeScript library for AI agents.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yu-iskw/google-cloud-tools.git",
+    "directory": "packages/bq-inspect"
+  },
   "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "commonjs",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
