@@ -2,8 +2,6 @@ import type { BqInspectError, BqInspectErrorCode } from './types';
 
 const exitCodes: Record<BqInspectErrorCode, number> = {
   BQINSPECT_INPUT_INVALID: 2,
-  BQINSPECT_SELECTOR_INVALID: 2,
-  BQINSPECT_FIELD_UNKNOWN: 2,
   BQINSPECT_PERMISSION_DENIED: 3,
   BQINSPECT_JOB_NOT_FOUND: 4,
   BQINSPECT_LOCATION_REQUIRED: 2,
@@ -14,8 +12,6 @@ const exitCodes: Record<BqInspectErrorCode, number> = {
 
 const defaultRetriableByCode: Record<BqInspectErrorCode, boolean> = {
   BQINSPECT_INPUT_INVALID: false,
-  BQINSPECT_SELECTOR_INVALID: false,
-  BQINSPECT_FIELD_UNKNOWN: false,
   BQINSPECT_PERMISSION_DENIED: false,
   BQINSPECT_JOB_NOT_FOUND: false,
   BQINSPECT_LOCATION_REQUIRED: false,
@@ -56,12 +52,16 @@ export function createBqInspectError(
   };
 }
 
-export function createInputFailure(message: string, hint?: string): BqInspectFailure {
+export function createInputFailure(
+  message: string,
+  options?: { hint?: string; source?: NonNullable<BqInspectError['source']> },
+): BqInspectFailure {
   return new BqInspectFailure(
     createBqInspectError({
       code: 'BQINSPECT_INPUT_INVALID',
       message,
-      hint,
+      ...(options?.hint === undefined ? {} : { hint: options.hint }),
+      ...(options?.source === undefined ? {} : { source: options.source }),
     }),
   );
 }

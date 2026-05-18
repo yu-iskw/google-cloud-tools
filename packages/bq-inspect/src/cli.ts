@@ -8,6 +8,9 @@ import { GLOBAL_USAGE } from './cli-usage';
 import { runDatasetsGet } from './commands/datasets/get';
 import { runJobsGet } from './commands/jobs/get';
 import { runJobsList } from './commands/jobs/list';
+import { runJobsPerformance } from './commands/jobs/performance';
+import { runJobsQuery } from './commands/jobs/query';
+import { runJobsSummary } from './commands/jobs/summary';
 import { runSchemaCommand } from './commands/schema';
 import { runTablesGet } from './commands/tables/get';
 import { runTablesList } from './commands/tables/list';
@@ -65,6 +68,18 @@ async function main(rawArgv: string[]): Promise<void> {
     test: (a: string[]) => boolean;
     run: (a: string[]) => Promise<unknown>;
   }> = [
+    {
+      test: (a) => a[0] === 'jobs' && a[1] === 'summary',
+      run: (a) => runJobsSummary(a.slice(2), { toolVersion }),
+    },
+    {
+      test: (a) => a[0] === 'jobs' && a[1] === 'query',
+      run: (a) => runJobsQuery(a.slice(2), { toolVersion }),
+    },
+    {
+      test: (a) => a[0] === 'jobs' && a[1] === 'performance',
+      run: (a) => runJobsPerformance(a.slice(2), { toolVersion }),
+    },
     {
       test: (a) => a[0] === 'jobs' && a[1] === 'get',
       run: (a) => runJobsGet(a.slice(2), { toolVersion }),

@@ -43,30 +43,34 @@ describe('resolveHelpText', () => {
     const text = resolveHelpText(['jobs', 'get'], true);
 
     expect(text).toBe(JOBS_GET_USAGE);
-    expect(text).toContain('--preset');
-    expect(text).toContain('--select');
+    expect(text).toContain('--params');
+    expect(text).toContain('jobs');
     expect(text).toContain('--input-schema');
     expect(text).toContain('--output-schema');
     expect(text).not.toContain('--selector-schema');
+    expect(text).not.toContain('--project');
   });
 
   it('returns jobs list usage', () => {
     const text = resolveHelpText(['jobs', 'list'], true);
 
-    expect(text).toContain('--min-creation-time');
-    expect(text).toContain('--label KEY=VALUE');
+    expect(text).toContain('--params');
+    expect(text).toContain('minCreationTime');
+    expect(text).toContain('allUsers');
+    expect(text).not.toContain('--min-creation-time');
   });
 
   it('returns catalog command usage', () => {
-    expect(resolveHelpText(['datasets', 'get'], true)).toContain('--dataset');
+    expect(resolveHelpText(['datasets', 'get'], true)).toContain('datasetId');
     expect(resolveHelpText(['tables', 'list'], true)).toContain('tables list');
-    expect(resolveHelpText(['tables', 'get'], true)).toContain('--table');
+    expect(resolveHelpText(['tables', 'get'], true)).toContain('tableId');
+    expect(resolveHelpText(['tables', 'get'], true)).not.toContain('--table');
   });
 
   it('returns schema usage variants', () => {
     expect(resolveHelpText(['schema'], true)).toContain('json-schema');
     expect(resolveHelpText(['schema', 'input'], true)).toContain('schema input');
-    expect(resolveHelpText(['schema', 'selector'], true)).toContain('--resource job');
+    expect(resolveHelpText(['schema', 'output'], true)).toContain('schema output');
   });
 
   it('returns global usage plus unknown command line', () => {

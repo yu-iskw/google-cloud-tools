@@ -9,8 +9,8 @@ export type {
   InspectJobResponse,
   JobListFiltersEcho,
   JobRef,
+  JobView,
   ListJobsResponse,
-  RedactionMode,
   TablesListResponse,
 } from './core/shared/types';
 
@@ -18,18 +18,14 @@ export { BqInspectFailure, createBqInspectError, getExitCode } from './core/shar
 export { normalizeJobRef } from './core/shared/job-ref';
 export { buildToolEnvelope } from './core/shared/envelope';
 export { iamHintForApi } from './core/shared/iam-hints';
-export { inspectJobs } from './core/inspect/inspect-jobs';
-export type { InspectJobOptions } from './core/inspect/inspect-jobs';
-export { applyProjection, type ProjectionResult } from './core/projection/project';
-export { redactValue } from './core/redaction/redact';
-export { listJobs } from './core/list/list-jobs';
-export { filterJobSummaries, type JobFilters } from './core/list/filter-jobs';
-export { getDatasetMetadata, getTableMetadata, listTablesMetadata } from './core/catalog/catalog';
-export {
-  jobPresetSelectors,
-  resolveJobPreset,
-  type JobPresetName,
-} from './core/presets/job-presets';
+export { inspectJobs } from './core/jobs/get';
+export type { InspectJobOptions } from './core/jobs/get';
+export { projectJob } from './core/jobs/project-job';
+export { listJobs } from './core/jobs/list';
+export { filterJobSummaries, type JobFilters } from './core/jobs/filter';
+export { getDatasetMetadata } from './core/datasets/get';
+export { getTableMetadata } from './core/tables/get';
+export { listTablesMetadata } from './core/tables/list';
 
 export type {
   BigQueryInspectionClient,
@@ -38,37 +34,39 @@ export type {
   ListJobsPage,
   ListJobsRequest,
   TableRef,
-} from './bigquery/bigquery-job-client';
-export {
-  createAuthClient,
-  normalizeDelegateList,
-  normalizeOptionalTrimmed,
-} from './bigquery/create-auth-client';
-export type { AuthClientOptions } from './bigquery/create-auth-client';
+} from './bigquery/client/job-client';
+export { createAuthClient } from './bigquery/auth/create-auth-client';
+export type { AuthClientOptions } from './bigquery/auth/create-auth-client';
+export { normalizeDelegateList, normalizeOptionalTrimmed } from './core/shared/normalize';
 export {
   SdkBigQueryClient,
   extractGoogleErrorMessage,
   mapGoogleErrorToBqInspectFailure,
   mapHttpStatusToErrorCode,
   resolveHttpStatus,
-} from './bigquery/sdk-job-client';
+} from './bigquery/sdk/sdk-job-client';
 
 /** @deprecated Use {@link SdkBigQueryClient} */
-export { SdkBigQueryClient as SdkBigQueryJobClient } from './bigquery/sdk-job-client';
+export { SdkBigQueryClient as SdkBigQueryJobClient } from './bigquery/sdk/sdk-job-client';
 
 export { FixtureBigQueryClient, FixtureJobClient } from './test-support/fixture-job-client';
 export type { FixtureBigQueryInput } from './test-support/fixture-job-client';
 
-export { parseSelector } from './selector/parse-selector';
-export type { SelectorAst, SelectorField } from './selector/types';
-
 /** Library alias for the jobs-get input JSON Schema (same object as {@link jobsGetInputSchema}). */
 export { jobsGetInputSchema as inputSchema } from './schemas/input-schema';
 export { outputSchema } from './schemas/output-schema';
-export { selectorSchemaJob } from './schemas/selector-schema';
 
 export { runJobsGet } from './commands/jobs/get';
-export type { JobsGetCommandOptions } from './commands/jobs/get';
+export { runJobsSummary } from './commands/jobs/summary';
+export { runJobsQuery } from './commands/jobs/query';
+export { runJobsPerformance } from './commands/jobs/performance';
+export type {
+  JobsViewCommandOptions,
+  JobsViewCommandOptions as JobsGetCommandOptions,
+  JobsViewCommandOptions as JobsPerformanceCommandOptions,
+  JobsViewCommandOptions as JobsQueryCommandOptions,
+  JobsViewCommandOptions as JobsSummaryCommandOptions,
+} from './commands/jobs/run-jobs-view';
 export { runJobsList } from './commands/jobs/list';
 export type { JobsListCommandOptions } from './commands/jobs/list';
 export { runDatasetsGet } from './commands/datasets/get';

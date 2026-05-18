@@ -1,14 +1,12 @@
-import { parseArgs } from 'node:util';
+import { parseOperationalArgv } from '../../cli/argv/operational-argv';
+import { parseDatasetsGetInput } from '../../cli/input/input-parsers';
+import { resolveParamsValue } from '../../cli/params/parse-params';
+import { getDatasetMetadata } from '../../core/datasets/get';
+import { getCommandSchema } from '../../schemas/command-schemas';
+import { createSdkInspectionClientFromInput } from '../command-shared';
 
-import { getDatasetMetadata } from '../../core/catalog/catalog';
-import {
-  assertJsonCliFormat,
-  createSdkInspectionClientFromCli,
-  requireCliString,
-} from '../command-shared';
-import { resolveSchemaFlag } from '../schema-flags';
-
-import type { BigQueryInspectionClient } from '../../bigquery/bigquery-job-client';
+import type { BigQueryInspectionClient } from '../../bigquery/client/job-client';
+import type { ParsedCatalogInput } from '../../cli/input/input-parsers';
 import type { datasetsGetInputSchema } from '../../schemas/input-schema';
 import type { catalogResourceOutputSchema } from '../../schemas/output-schema';
 
@@ -25,34 +23,35 @@ export async function runDatasetsGet(
   | typeof catalogResourceOutputSchema
   | typeof datasetsGetInputSchema
 > {
-  const parsed = parseArgs({
-    args: argv,
-    options: {
-      project: { type: 'string' },
-      dataset: { type: 'string' },
-      format: { type: 'string' },
-      'impersonate-service-account': { type: 'string' },
-      'impersonate-delegate': { type: 'string', multiple: true },
-      'input-schema': { type: 'boolean' },
-      'output-schema': { type: 'boolean' },
-    },
-  });
+  const argvParsed = parseOperationalArgv(argv);
 
-  const schemaPayload = resolveSchemaFlag('datasets get', parsed.values);
-
-  if (schemaPayload !== undefined) {
-    return schemaPayload as typeof catalogResourceOutputSchema | typeof datasetsGetInputSchema;
+  if (argvParsed.kind === 'input-schema') {
+    return getCommandSchema('datasets get', 'input') as typeof datasetsGetInputSchema;
   }
 
-  assertJsonCliFormat(parsed.values.format);
+  if (argvParsed.kind === 'output-schema') {
+    return getCommandSchema('datasets get', 'output') as typeof catalogResourceOutputSchema;
+  }
 
-  const projectId = requireCliString(parsed.values.project, '--project');
-  const datasetId = requireCliString(parsed.values.dataset, '--dataset');
+  const raw = await resolveParamsValue(argvParsed.params);
+  const input = parseDatasetsGetInput(raw);
 
-  const client = commandOptions.client ?? (await createSdkInspectionClientFromCli(parsed.values));
+  return executeDatasetsGet(input, commandOptions);
+}
+
+async function executeDatasetsGet(
+  input: ParsedCatalogInput,
+  commandOptions: DatasetsGetCommandOptions,
+): Promise<Awaited<ReturnType<typeof getDatasetMetadata>>> {
+  const client =
+    commandOptions.client ??
+    (await createSdkInspectionClientFromInput({
+      impersonateServiceAccount: input.impersonateServiceAccount,
+      impersonateDelegates: input.impersonateDelegates,
+    }));
 
   return getDatasetMetadata(
-    { projectId, datasetId },
+    { projectId: input.projectId, datasetId: input.datasetId },
     { client, toolVersion: commandOptions.toolVersion },
   );
 }

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { BqInspectFailure, createBqInspectError, normalizeJobRef } from './index';
 
-import type { InspectJobRequest, InspectJobResponse, JobRef, RedactionMode } from './index';
+import type { InspectJobRequest, InspectJobResponse, JobRef, JobView } from './index';
 
 describe('public exports', () => {
   it('exports job reference validation and typed error helpers', () => {
@@ -17,10 +17,10 @@ describe('public exports', () => {
   });
 
   it('exports request and response contract types', () => {
-    const redaction: RedactionMode = 'default';
+    const view: JobView = 'summary';
     const request: InspectJobRequest = {
       jobs: [{ projectId: 'analytics-prod', jobId: 'job_123' }],
-      redaction,
+      view,
     };
     const response: InspectJobResponse = {
       schemaVersion: 'bq-inspect.v1',
@@ -31,7 +31,7 @@ describe('public exports', () => {
       },
       request: {
         jobs: request.jobs,
-        redaction,
+        view,
       },
       jobs: [],
       warnings: [],

@@ -76,7 +76,7 @@ Split so agents and CI get consistent, low-conflict feedback:
 - Tests in `tests/` or colocated `*.test.ts`
 - **Vitest** for unit and integration tests
 - Aim for strong coverage on core logic
-- Run `pnpm test` before committing
+- Run `pnpm test` before committing; `pnpm test:coverage` runs Vitest projects — shared coverage defaults in root `vitest.shared.ts`, workspace-specific thresholds in `packages/*/vitest.config.ts` (see `packages/bq-inspect/CONTRIBUTING.md`)
 
 ## Git workflow
 

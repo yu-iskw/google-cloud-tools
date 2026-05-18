@@ -2,14 +2,17 @@ export const GLOBAL_USAGE = `
 bq-inspect — read-only BigQuery job and metadata inspection (JSON on stdout).
 
 Usage:
-  bq-inspect <command> [options]
+  bq-inspect <command> --params '<json>' | --params @file.json [options]
 
 Commands (each supports --input-schema / --output-schema for JSON Schema on stdout):
-  jobs get       Fetch job(s) with optional --select or --preset
-  jobs list      List jobs (optional client-side filters)
-  datasets get   Dataset metadata
-  tables list    List tables in a dataset
-  tables get     Table metadata
+  jobs summary     Job status, timing, bytes/slots (default inspection)
+  jobs query       SQL and JobConfigurationQuery
+  jobs performance Query plan, timeline, script/session stats
+  jobs get         Full BigQuery Job JSON
+  jobs list        List jobs (optional client-side filters in params)
+  datasets get     Dataset metadata
+  tables list      List tables in a dataset
+  tables get       Table metadata
 
 Legacy:
   schema         Same contracts as above (see: bq-inspect schema --help)
@@ -18,130 +21,153 @@ Global:
   bq-inspect --help | -h
   bq-inspect <command> --help
 
+Agent workflow: jobs list → jobs summary | jobs query | jobs performance | jobs get
+
 Errors are JSON on stderr; success is JSON on stdout (except plain-text --help).
+`.trim();
+
+const PARAMS_DISCOVERY = `
+Discovery:
+  --input-schema     Print this command's input JSON Schema and exit
+  --output-schema    Print this command's output JSON Schema and exit
+
+Required:
+  --params <json>    JSON object matching the input schema, or @path to a JSON file
+`.trim();
+
+const JOBS_VIEW_PARAMS = `
+Params (see --input-schema for full schema):
+  jobs                 Non-empty array of { projectId, jobId, location? }
+  impersonateServiceAccount, impersonateDelegates
+`.trim();
+
+export const JOBS_SUMMARY_USAGE = `
+Usage:
+  bq-inspect jobs summary --params '<json>' | --params @file.json [options]
+
+${PARAMS_DISCOVERY}
+
+${JOBS_VIEW_PARAMS}
+
+Examples:
+  bq-inspect jobs summary --params '{"jobs":[{"projectId":"my-proj","jobId":"abc"}]}'
+  bq-inspect jobs summary --params @./jobs-summary.json
+`.trim();
+
+export const JOBS_QUERY_USAGE = `
+Usage:
+  bq-inspect jobs query --params '<json>' | --params @file.json [options]
+
+${PARAMS_DISCOVERY}
+
+${JOBS_VIEW_PARAMS}
+
+Examples:
+  bq-inspect jobs query --params '{"jobs":[{"projectId":"my-proj","jobId":"abc"}]}'
+  bq-inspect jobs query --params @./jobs-query.json
+`.trim();
+
+export const JOBS_PERFORMANCE_USAGE = `
+Usage:
+  bq-inspect jobs performance --params '<json>' | --params @file.json [options]
+
+${PARAMS_DISCOVERY}
+
+${JOBS_VIEW_PARAMS}
+
+Examples:
+  bq-inspect jobs performance --params '{"jobs":[{"projectId":"my-proj","jobId":"abc"}]}'
+  bq-inspect jobs performance --params @./jobs-performance.json
 `.trim();
 
 export const JOBS_GET_USAGE = `
 Usage:
-  bq-inspect jobs get --project <id> --job-id <id> [--job-id <id> ...] [options]
+  bq-inspect jobs get --params '<json>' | --params @file.json [options]
 
-Discovery:
-  --input-schema     Print this command's input JSON Schema and exit
-  --output-schema    Print this command's output JSON Schema and exit
+${PARAMS_DISCOVERY}
 
-Required:
-  --project <string>
-  --job-id <string>   (repeatable)
+${JOBS_VIEW_PARAMS}
 
-Optional:
-  --location <string>
-  --select <selector>   Mutually exclusive with --preset; see --input-schema for selector examples
-  --preset <name>       (e.g. diagnostic; mutually exclusive with --select)
-  --redact default|strict|none
-  --fail-on-missing-field
-  --format json
-  --impersonate-service-account <email>
-  --impersonate-delegate <email>   (repeatable chain)
+Examples:
+  bq-inspect jobs get --params '{"jobs":[{"projectId":"my-proj","jobId":"abc"}]}'
+  bq-inspect jobs get --params @./jobs-get.json
 `.trim();
 
 export const JOBS_LIST_USAGE = `
 Usage:
-  bq-inspect jobs list --project <id> [options]
+  bq-inspect jobs list --params '<json>' | --params @file.json [options]
 
-Discovery:
-  --input-schema     Print this command's input JSON Schema and exit
-  --output-schema    Print this command's output JSON Schema and exit
+${PARAMS_DISCOVERY}
 
-Required:
-  --project <string>
+Params (see --input-schema):
+  projectId            Required
+  location, minCreationTime, maxCreationTime, pageToken, maxResults, allUsers
+  minSlotMs, minBytesBilled, state, labels, parentJobId
+  impersonateServiceAccount, impersonateDelegates
 
-Optional:
-  --location <string>
-  --min-creation-time <iso-8601>
-  --max-creation-time <iso-8601>
-  --page-token <string>
-  --max-results <positive-int>
-  --all-users
-  --min-slot-ms <integer>
-  --min-bytes-billed <integer>
-  --state <string>
-  --label KEY=VALUE   (repeatable)
-  --parent-job-id <string>
-  --format json
-  --impersonate-service-account <email>
-  --impersonate-delegate <email>   (repeatable chain)
+Examples:
+  bq-inspect jobs list --params '{"projectId":"my-proj","location":"US","maxResults":50}'
+  bq-inspect jobs list --params @./jobs-list.json
 `.trim();
 
 export const DATASETS_GET_USAGE = `
 Usage:
-  bq-inspect datasets get --project <id> --dataset <id> [options]
+  bq-inspect datasets get --params '<json>' | --params @file.json [options]
 
-Discovery:
-  --input-schema     Print this command's input JSON Schema and exit
-  --output-schema    Print this command's output JSON Schema and exit
+${PARAMS_DISCOVERY}
 
-Required:
-  --project <string>
-  --dataset <string>
+Params (see --input-schema):
+  projectId, datasetId
+  impersonateServiceAccount, impersonateDelegates
 
-Optional:
-  --format json
-  --impersonate-service-account <email>
-  --impersonate-delegate <email>   (repeatable chain)
+Examples:
+  bq-inspect datasets get --params '{"projectId":"my-proj","datasetId":"analytics"}'
+  bq-inspect datasets get --params @./datasets-get.json
 `.trim();
 
 export const TABLES_LIST_USAGE = `
 Usage:
-  bq-inspect tables list --project <id> --dataset <id> [options]
+  bq-inspect tables list --params '<json>' | --params @file.json [options]
 
-Discovery:
-  --input-schema     Print this command's input JSON Schema and exit
-  --output-schema    Print this command's output JSON Schema and exit
+${PARAMS_DISCOVERY}
 
-Required:
-  --project <string>
-  --dataset <string>
+Params (see --input-schema):
+  projectId, datasetId
+  impersonateServiceAccount, impersonateDelegates
 
-Optional:
-  --format json
-  --impersonate-service-account <email>
-  --impersonate-delegate <email>   (repeatable chain)
+Examples:
+  bq-inspect tables list --params '{"projectId":"my-proj","datasetId":"analytics"}'
+  bq-inspect tables list --params @./tables-list.json
 `.trim();
 
 export const TABLES_GET_USAGE = `
 Usage:
-  bq-inspect tables get --project <id> --dataset <id> --table <id> [options]
+  bq-inspect tables get --params '<json>' | --params @file.json [options]
 
-Discovery:
-  --input-schema     Print this command's input JSON Schema and exit
-  --output-schema    Print this command's output JSON Schema and exit
+${PARAMS_DISCOVERY}
 
-Required:
-  --project <string>
-  --dataset <string>
-  --table <string>
+Params (see --input-schema):
+  projectId, datasetId, tableId
+  impersonateServiceAccount, impersonateDelegates
 
-Optional:
-  --format json
-  --impersonate-service-account <email>
-  --impersonate-delegate <email>   (repeatable chain)
+Examples:
+  bq-inspect tables get --params '{"projectId":"my-proj","datasetId":"analytics","tableId":"events"}'
+  bq-inspect tables get --params @./tables-get.json
 `.trim();
 
 export const SCHEMA_USAGE = `
 Usage:
-  bq-inspect schema <input|output|selector> --format json-schema [options]
+  bq-inspect schema <input|output> --format json-schema
 
-Legacy JSON Schema (prefer per-command --input-schema / --output-schema on jobs get, etc.).
+Legacy JSON Schema (prefer per-command --input-schema / --output-schema).
 
 Subcommands:
   input     Jobs get input JSON Schema
   output    Response JSON Schema (oneOf across commands)
-  selector  Job selector JSON Schema (--resource job required)
 
 Examples:
   bq-inspect schema input --format json-schema
   bq-inspect schema output --format json-schema
-  bq-inspect schema selector --format json-schema --resource job
 
 Run bq-inspect schema <subcommand> --help for a short reminder.
 `.trim();
@@ -154,13 +180,4 @@ Usage:
 export const SCHEMA_OUTPUT_USAGE = `
 Usage:
   bq-inspect schema output --format json-schema
-`.trim();
-
-export const SCHEMA_SELECTOR_USAGE = `
-Usage:
-  bq-inspect schema selector --format json-schema --resource job
-
-Required:
-  --format json-schema
-  --resource job
 `.trim();

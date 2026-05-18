@@ -22,9 +22,23 @@ All commands assume the **repository root** as the current directory.
 ```bash
 pnpm --filter bq-inspect build
 pnpm test -- packages/bq-inspect
+pnpm test:coverage
 pnpm format:eslint -- packages/bq-inspect/src
 pnpm lint:eslint -- packages/bq-inspect/src
 ```
+
+### Test coverage
+
+Shared defaults (provider, reporters, 85%/80% threshold block, `perFile`) live in [`vitest.shared.ts`](../../vitest.shared.ts). Workspace-specific excludes and threshold globs are in [`vitest.config.ts`](vitest.config.ts) (paths relative to `src/`).
+
+| Glob                                                       | Lines / functions / statements | Branches |
+| ---------------------------------------------------------- | ------------------------------ | -------- |
+| `src/core/**`                                              | 85%                            | 80%      |
+| `src/cli/input/**`, `src/cli/params/**`, `src/bigquery/**` | 85%                            | 80%      |
+
+**Workspace-only coverage excludes** (in addition to shared patterns): `parsed-input-types.ts`, `src/core/shared/types.ts`, `src/bigquery/client/job-client.ts`, and one-line job view re-exports under `src/commands/jobs/` (`get.ts`, `query.ts`, `performance.ts`, `summary.ts`).
+
+CI runs `pnpm test:coverage` (see [`.github/workflows/test.yml`](../../.github/workflows/test.yml)).
 
 Before a change that might affect workspace-wide tooling or unused exports:
 
@@ -34,6 +48,8 @@ pnpm lint
 ```
 
 (`pnpm lint` runs Trunk and Knip per root scripts.)
+
+Production builds use [`tsconfig.build.json`](tsconfig.build.json), which excludes `*.test.ts` from `dist/`. Before a release, from this package directory run `npm pack --dry-run` and confirm the tarball lists `dist/`, `README.md`, and `LICENSE`, and does not list `src/` or `**/*.test.js`.
 
 ### Run the CLI from the workspace
 
@@ -52,6 +68,24 @@ pnpm build
 node dist/cli.js --help
 ```
 
+## CLI and agent workflow
+
+Operational commands accept only:
+
+- **`--params`** — JSON object or `@path` to a JSON file (required to run).
+- **`--input-schema`** / **`--output-schema`** — print JSON Schema and exit (no BigQuery call).
+
+Parsing layers:
+
+- [`src/cli/argv/operational-argv.ts`](src/cli/argv/operational-argv.ts) — argv → schema discovery or `--params` string.
+- [`src/cli/params/parse-params.ts`](src/cli/params/parse-params.ts) — resolve inline JSON or `@file`.
+- [`src/schemas/validate-input.ts`](src/schemas/validate-input.ts) — AJV validation against the same JSON Schema as `--input-schema`.
+- [`src/cli/input/map-input.ts`](src/cli/input/map-input.ts) — domain mapping (epoch ms, list filters split, impersonation trim).
+- [`src/cli/input/input-parsers.ts`](src/cli/input/input-parsers.ts) — `validateInput` + `map*` per command.
+- [`src/commands/<resource>/`](src/commands/) — wire parsers to core use cases.
+
+**Agent workflow:** `bq-inspect <command> --input-schema` → build params JSON → `bq-inspect <command> --params @file.json` (or inline JSON). Tests should pass `--params` with `JSON.stringify` rather than legacy kebab-case flags.
+
 ## CLI help text (source of truth)
 
 Published usage strings live in:
@@ -59,40 +93,45 @@ Published usage strings live in:
 - [`src/cli-usage.ts`](src/cli-usage.ts) — all `*_USAGE` constants (global and per-command).
 - [`src/cli-help.ts`](src/cli-help.ts) — maps `argv` keys to those strings for `bq-inspect … --help`.
 
-**Rule:** Any new or changed CLI flag must:
+**Rule:** Any new or changed params field must:
 
-1. Update `parseArgs` (and validation) in the relevant command under [`src/commands/`](src/commands/) (for example `jobs/get.ts`, `tables/list.ts`).
-2. Update the matching block in `cli-usage.ts`.
-3. Update [README.md](README.md) if the flag is user-facing in examples or narrative.
+1. Update JSON Schema in [`src/schemas/input-schema.ts`](src/schemas/input-schema.ts) (runtime validation follows automatically).
+2. Update [`src/cli/input/map-input.ts`](src/cli/input/map-input.ts) only if the field needs domain mapping beyond schema shape.
+3. Update the matching block in `cli-usage.ts`.
+4. Update [README.md](README.md) if the field is user-facing in examples or narrative.
 
 Keep [README.md](README.md) examples aligned with `cli-usage.ts`; end users treat **`--help`** as authoritative.
 
 ## Architecture (minimal hexagonal)
 
-- **`commands/`** — Thin CLI adapters grouped by resource (`jobs/`, `datasets/`, `tables/`), plus shared `command-shared.ts`, `schema-flags.ts`, and meta `schema.ts`: parse flags, build the BigQuery client, call application functions.
-- **`core/`** — Use cases (`inspect`, `list`, `catalog`) plus pure helpers (selector, projection, redaction, filters, presets).
-- **`bigquery/`** — Outbound port types (`BigQueryInspectionClient`, `BigQueryJobClient`) and the Google SDK adapter (`SdkBigQueryClient`).
+- **`cli/`** — Parse pipeline by stage (`argv/`, `params/`, `input/`); not split by BigQuery resource.
+- **`commands/`** — Thin CLI adapters grouped by resource (`jobs/`, `datasets/`, `tables/`), plus shared `command-shared.ts` and meta `schema.ts`: parse operational argv, build the BigQuery client, call application functions.
+- **`core/`** — Use cases grouped by resource (`jobs`, `datasets`, `tables`) plus pure helpers (`project-job`, `shared`).
+- **`bigquery/`** — Adapter role (`client/` ports, `auth/` ADC + impersonation, `sdk/` `SdkBigQueryClient`); not split by resource.
 - **`schemas/`** — JSON Schema contracts for agents; [`command-schemas.ts`](src/schemas/command-schemas.ts) resolves per-command schemas for `--input-schema` / `--output-schema`.
-- **`selector/`** — Selector parsing for `jobs get`.
 
 ## Package layout (`src/`)
 
-- `bigquery/` — GCP client adapters and port interfaces
-- `commands/` — CLI subcommands (`jobs/`, `datasets/`, `tables/`, plus shared `command-shared.ts`, `schema-flags.ts`, `schema.ts`)
-- `core/inspect` — Job fetch orchestration (`inspectJobs`)
-- `core/list` — `jobs list` filtering and envelope
-- `core/catalog` — Dataset/table metadata reads
-- `core/presets` — Selector presets (e.g. `diagnostic`)
-- `core/projection` / `core/redaction` — Selector output shaping
-- `core/shared` — Types, errors, envelopes, IAM hints
-- `selector/`, `schemas/` — Agent contracts and schema exports
+- `bigquery/client` — port types (`BigQueryInspectionClient`, refs, list request types)
+- `bigquery/auth` — ADC + impersonation (`createAuthClient`)
+- `bigquery/sdk` — `SdkBigQueryClient` and error mapping helpers
+- `cli/argv` — operational flags (`--params`, schemas)
+- `cli/params` — JSON / `@file` resolution
+- `cli/input` — validate + map + parsed types
+- `commands/` — CLI subcommands (`jobs/`, `datasets/`, `tables/`, plus shared `command-shared.ts`, `schema.ts`)
+- `core/jobs` — `inspectJobs` with job views (`summary`, `query`, `performance`, `full`) and `jobs list` (+ client-side filters)
+- `core/datasets` — `datasets get`
+- `core/tables` — `tables list` and `tables get`
+- `core/jobs/project-job` — in-process projection of `jobs.get` payloads per view
+- `core/shared` — Types, errors, envelopes, IAM hints, catalog error helper
+- `schemas/` — Agent contracts and schema exports
 
 ## Library and tests
 
 - **Imports:** Consumers import from the package entry (see [`src/index.ts`](src/index.ts)) after `pnpm build` or from published npm types.
 - **Core job inspection:** `inspectJobs` with a `BigQueryJobClient` (job-only port).
 - **List jobs / catalog:** `BigQueryInspectionClient` with `SdkBigQueryClient`.
-- **CLI parity in tests:** Call `runJobsGet`, `runJobsList`, `runDatasetsGet`, `runTablesList`, or `runTablesGet` without passing `client` so the command builds `SdkBigQueryClient` with ADC (and optional impersonation flags), or inject fakes.
+- **CLI parity in tests:** Call `runJobsGet`, `runJobsList`, `runDatasetsGet`, `runTablesList`, or `runTablesGet` with `['--params', JSON.stringify({...})]` (and inject `client` when avoiding ADC), or use `--input-schema` / `--output-schema` for schema-only paths.
 - **Fakes:** [`src/test-support/fixture-job-client.ts`](src/test-support/fixture-job-client.ts) (`FixtureJobClient` — jobs only) and fixture bigquery client for full port tests.
 
 Prefer state-based tests on observable JSON output; avoid new mocks unless necessary.
@@ -100,7 +139,7 @@ Prefer state-based tests on observable JSON output; avoid new mocks unless neces
 ## Pull request checklist
 
 - [ ] `pnpm --filter bq-inspect build`
-- [ ] `pnpm test -- packages/bq-inspect`
+- [ ] `pnpm test:coverage` from repo root (or `pnpm test` for a quick pass)
 - [ ] `pnpm lint:eslint -- packages/bq-inspect/src`
 - [ ] `pnpm knip` (if dependencies, exports, or workspace layout changed)
 - [ ] `pnpm lint` (Trunk + Knip) before merge when touching shared config or docs CI cares about
@@ -108,4 +147,4 @@ Prefer state-based tests on observable JSON output; avoid new mocks unless neces
 
 ## License
 
-Apache 2.0 — see [LICENSE](../../LICENSE) in the repository root.
+Apache 2.0 — [LICENSE](LICENSE) in this package (same text as [repository root](../../LICENSE)).

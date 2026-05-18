@@ -6,8 +6,6 @@ import type { BqInspectError, BqInspectErrorCode } from './types';
 
 const exitCodeCases: ReadonlyArray<[BqInspectErrorCode, number]> = [
   ['BQINSPECT_INPUT_INVALID', 2],
-  ['BQINSPECT_SELECTOR_INVALID', 2],
-  ['BQINSPECT_FIELD_UNKNOWN', 2],
   ['BQINSPECT_PERMISSION_DENIED', 3],
   ['BQINSPECT_JOB_NOT_FOUND', 4],
   ['BQINSPECT_LOCATION_REQUIRED', 2],

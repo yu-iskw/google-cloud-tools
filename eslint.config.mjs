@@ -106,6 +106,7 @@ export default [
       '.trunk/**',
       '**/*.generated.ts',
       'vitest.config.ts',
+      'vitest.shared.ts',
     ],
   },
   {

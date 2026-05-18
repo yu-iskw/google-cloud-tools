@@ -5,7 +5,7 @@ import type {
   ListJobsPage,
   ListJobsRequest,
   TableRef,
-} from '../bigquery/bigquery-job-client';
+} from '../bigquery/client/job-client';
 import type { JobRef } from '../core/shared/types';
 
 export interface FixtureBigQueryInput {

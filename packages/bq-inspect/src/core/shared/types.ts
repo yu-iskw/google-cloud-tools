@@ -4,15 +4,13 @@ export interface JobRef {
   jobId: string;
 }
 
-export type RedactionMode = 'default' | 'none' | 'strict';
+export type JobView = 'full' | 'performance' | 'query' | 'summary';
 
 export type BqInspectSchemaVersion = 'bq-inspect.v1';
 
 export interface InspectJobRequest {
   jobs: JobRef[];
-  selector?: string;
-  redaction?: RedactionMode;
-  failOnMissingField?: boolean;
+  view?: JobView;
   schemaVersion?: BqInspectSchemaVersion;
   impersonateServiceAccount?: string;
   impersonateDelegates?: string[];
@@ -27,8 +25,7 @@ export interface InspectJobResponse {
   };
   request: {
     jobs: JobRef[];
-    selector?: string;
-    redaction: RedactionMode;
+    view: JobView;
     impersonateServiceAccount?: string;
     impersonateDelegates?: string[];
   };
@@ -62,19 +59,18 @@ export interface BqInspectError {
   source?: {
     api?: string;
     status?: number;
+    schemaErrors?: { path: string; message: string }[];
   };
 }
 
 export type BqInspectErrorCode =
   | 'BQINSPECT_API_RATE_LIMITED'
   | 'BQINSPECT_API_UNAVAILABLE'
-  | 'BQINSPECT_FIELD_UNKNOWN'
   | 'BQINSPECT_INPUT_INVALID'
   | 'BQINSPECT_INTERNAL'
   | 'BQINSPECT_JOB_NOT_FOUND'
   | 'BQINSPECT_LOCATION_REQUIRED'
-  | 'BQINSPECT_PERMISSION_DENIED'
-  | 'BQINSPECT_SELECTOR_INVALID';
+  | 'BQINSPECT_PERMISSION_DENIED';
 
 /** Serializable echo of job list filters for JSON output */
 export interface JobListFiltersEcho {

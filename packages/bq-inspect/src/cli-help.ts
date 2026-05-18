@@ -3,9 +3,11 @@ import {
   GLOBAL_USAGE,
   JOBS_GET_USAGE,
   JOBS_LIST_USAGE,
+  JOBS_PERFORMANCE_USAGE,
+  JOBS_QUERY_USAGE,
+  JOBS_SUMMARY_USAGE,
   SCHEMA_INPUT_USAGE,
   SCHEMA_OUTPUT_USAGE,
-  SCHEMA_SELECTOR_USAGE,
   SCHEMA_USAGE,
   TABLES_GET_USAGE,
   TABLES_LIST_USAGE,
@@ -17,10 +19,14 @@ function commandHelpForKey(key: string): string | undefined {
       return SCHEMA_INPUT_USAGE;
     case 'schema output':
       return SCHEMA_OUTPUT_USAGE;
-    case 'schema selector':
-      return SCHEMA_SELECTOR_USAGE;
     case 'schema':
       return SCHEMA_USAGE;
+    case 'jobs summary':
+      return JOBS_SUMMARY_USAGE;
+    case 'jobs query':
+      return JOBS_QUERY_USAGE;
+    case 'jobs performance':
+      return JOBS_PERFORMANCE_USAGE;
     case 'jobs get':
       return JOBS_GET_USAGE;
     case 'jobs list':

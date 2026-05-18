@@ -11,56 +11,73 @@ const toolBlock = {
 
 const schemaVersionField = { const: 'bq-inspect.v1' } as const;
 
-export const jobsGetOutputSchema = {
-  title: 'bq-inspect jobs get output',
-  type: 'object',
-  required: ['schemaVersion', 'tool', 'request', 'jobs', 'warnings', 'errors'],
-  additionalProperties: false,
-  properties: {
-    schemaVersion: schemaVersionField,
-    tool: toolBlock,
-    request: {
-      type: 'object',
-      required: ['jobs', 'redaction'],
-      additionalProperties: false,
-      properties: {
-        jobs: { type: 'array' },
-        selector: { type: 'string' },
-        redaction: { enum: ['default', 'strict', 'none'] },
-        impersonateServiceAccount: { type: 'string', minLength: 1 },
-        impersonateDelegates: {
-          type: 'array',
-          items: { type: 'string', minLength: 1 },
-        },
-      },
-    },
-    jobs: {
-      type: 'array',
-      items: {
+type JobViewConst = 'full' | 'performance' | 'query' | 'summary';
+
+function makeJobsViewOutputSchema(view: JobViewConst, title: string) {
+  return {
+    title,
+    type: 'object',
+    required: ['schemaVersion', 'tool', 'request', 'jobs', 'warnings', 'errors'],
+    additionalProperties: false,
+    properties: {
+      schemaVersion: schemaVersionField,
+      tool: toolBlock,
+      request: {
         type: 'object',
-        required: ['jobRef', 'source', 'warnings', 'errors'],
+        required: ['jobs', 'view'],
         additionalProperties: false,
         properties: {
-          jobRef: { type: 'object' },
-          source: {
-            type: 'object',
-            required: ['api', 'fetchedAt'],
-            additionalProperties: false,
-            properties: {
-              api: { const: 'bigquery.jobs.get' },
-              fetchedAt: { type: 'string', minLength: 1 },
-            },
+          jobs: { type: 'array' },
+          view: { const: view },
+          impersonateServiceAccount: { type: 'string', minLength: 1 },
+          impersonateDelegates: {
+            type: 'array',
+            items: { type: 'string', minLength: 1 },
           },
-          job: true,
-          warnings: { type: 'array' },
-          errors: { type: 'array' },
         },
       },
+      jobs: {
+        type: 'array',
+        items: {
+          type: 'object',
+          required: ['jobRef', 'source', 'warnings', 'errors'],
+          additionalProperties: false,
+          properties: {
+            jobRef: { type: 'object' },
+            source: {
+              type: 'object',
+              required: ['api', 'fetchedAt'],
+              additionalProperties: false,
+              properties: {
+                api: { const: 'bigquery.jobs.get' },
+                fetchedAt: { type: 'string', minLength: 1 },
+              },
+            },
+            job: true,
+            warnings: { type: 'array' },
+            errors: { type: 'array' },
+          },
+        },
+      },
+      warnings: { type: 'array' },
+      errors: { type: 'array' },
     },
-    warnings: { type: 'array' },
-    errors: { type: 'array' },
-  },
-} as const;
+  } as const;
+}
+
+export const jobsGetOutputSchema = makeJobsViewOutputSchema('full', 'bq-inspect jobs get output');
+export const jobsSummaryOutputSchema = makeJobsViewOutputSchema(
+  'summary',
+  'bq-inspect jobs summary output',
+);
+export const jobsQueryOutputSchema = makeJobsViewOutputSchema(
+  'query',
+  'bq-inspect jobs query output',
+);
+export const jobsPerformanceOutputSchema = makeJobsViewOutputSchema(
+  'performance',
+  'bq-inspect jobs performance output',
+);
 
 export const jobsListOutputSchema = {
   title: 'bq-inspect jobs list output',
@@ -155,6 +172,9 @@ export const outputSchema = {
   title: 'bq-inspect command output (union)',
   oneOf: [
     jobsGetOutputSchema,
+    jobsSummaryOutputSchema,
+    jobsQueryOutputSchema,
+    jobsPerformanceOutputSchema,
     jobsListOutputSchema,
     catalogResourceOutputSchema,
     tablesListOutputSchema,
