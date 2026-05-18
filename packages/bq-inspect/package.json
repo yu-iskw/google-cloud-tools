@@ -1,0 +1,22 @@
+{
+  "name": "bq-inspect",
+  "version": "0.1.0",
+  "description": "Read-only BigQuery job inspection CLI and TypeScript library for AI agents.",
+  "license": "Apache-2.0",
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "bq-inspect": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@google-cloud/bigquery": "8.3.1",
+    "google-auth-library": "10.6.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0"
+  }
+}

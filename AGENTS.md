@@ -53,6 +53,15 @@ Split so agents and CI get consistent, low-conflict feedback:
 - **Knip** (`knip.json`): unused deps, exports, workspace entrypoints. Run `pnpm knip` before large refactors or when adding packages.
 - **Trunk:** ESLint, Prettier, **Trivy**, **OSV-scanner**, etc. Use `pnpm lint:security` for security-scoped checks.
 
+**Trunk also runs ESLint** in CI and in `pnpm lint`. Direct `pnpm lint:eslint` / `pnpm format:eslint` is for **faster scoped feedback** and **`eslint --fix`** before Trunk; keep ESLint free of Prettier-overlapping stylistic rules.
+
+**Agent lint order (recommended):**
+
+1. `pnpm format:eslint -- <path>` (optional path; scope when the task touches a known directory or package).
+2. `pnpm lint:eslint -- <path>` until clean.
+3. `pnpm format` then `pnpm lint` (Trunk and Knip per root `pnpm lint` script).
+4. `pnpm knip` when deps, exports, or entrypoints may have changed (also runs as part of `pnpm lint`).
+
 **Suggested pre-commit gate:** `pnpm lint:eslint && pnpm knip && pnpm lint && pnpm test` (or `pnpm lint` alone for Trunk-only). Prefer **`pnpm format`** / `trunk fmt`; use **`pnpm format:eslint`** when you want ESLint `--fix` only.
 
 ## Code style

@@ -1,0 +1,29 @@
+{
+  "id": "analytics-prod:US.job_123",
+  "jobReference": {
+    "projectId": "analytics-prod",
+    "jobId": "job_123",
+    "location": "US"
+  },
+  "configuration": {
+    "query": {
+      "query": "SELECT * FROM `analytics-prod.dataset.users` WHERE name = 'alice'"
+    }
+  },
+  "status": {
+    "state": "DONE",
+    "errorResult": null
+  },
+  "statistics": {
+    "query": {
+      "totalBytesProcessed": "12345",
+      "totalBytesBilled": "12345",
+      "totalSlotMs": "999"
+    }
+  },
+  "user_email": "alice@example.com",
+  "principal_subject": "user:alice@example.com",
+  "labels": {
+    "team": "data-platform"
+  }
+}
