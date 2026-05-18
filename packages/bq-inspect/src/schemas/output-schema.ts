@@ -11,7 +11,7 @@ const toolBlock = {
 
 const schemaVersionField = { const: 'bq-inspect.v1' } as const;
 
-type JobViewConst = 'full' | 'performance' | 'query' | 'summary';
+type JobViewConst = 'full' | 'impact' | 'lineage' | 'performance' | 'query' | 'summary';
 
 function makeJobsViewOutputSchema(view: JobViewConst, title: string) {
   return {
@@ -77,6 +77,14 @@ export const jobsQueryOutputSchema = makeJobsViewOutputSchema(
 export const jobsPerformanceOutputSchema = makeJobsViewOutputSchema(
   'performance',
   'bq-inspect jobs performance output',
+);
+export const jobsLineageOutputSchema = makeJobsViewOutputSchema(
+  'lineage',
+  'bq-inspect jobs lineage output',
+);
+export const jobsImpactOutputSchema = makeJobsViewOutputSchema(
+  'impact',
+  'bq-inspect jobs impact output',
 );
 
 export const jobsListOutputSchema = {
@@ -175,6 +183,8 @@ export const outputSchema = {
     jobsSummaryOutputSchema,
     jobsQueryOutputSchema,
     jobsPerformanceOutputSchema,
+    jobsLineageOutputSchema,
+    jobsImpactOutputSchema,
     jobsListOutputSchema,
     catalogResourceOutputSchema,
     tablesListOutputSchema,

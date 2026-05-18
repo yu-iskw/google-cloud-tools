@@ -105,7 +105,7 @@ export default [
       '.serena/**',
       '.trunk/**',
       '**/*.generated.ts',
-      'vitest.config.ts',
+      '**/vitest.config.ts',
       'vitest.shared.ts',
     ],
   },

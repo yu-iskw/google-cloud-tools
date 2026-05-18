@@ -103,6 +103,27 @@ describe('mapGoogleErrorToBqInspectFailure', () => {
     expect(failure.details.source).toEqual({ api: 'bigquery.tables.get', status: 403 });
   });
 
+  it('adds location guidance for jobs.get 403 when job ref has no location', () => {
+    const failure = mapGoogleErrorToBqInspectFailure(
+      { code: 403, message: 'Access Denied.' },
+      'bigquery.jobs.get',
+      { jobRef: { projectId: 'p', jobId: 'j' } },
+    );
+
+    expect(failure.details.hint).toContain('Add location on each job ref');
+  });
+
+  it('adds location guidance for jobs.get 404 when job ref has no location', () => {
+    const failure = mapGoogleErrorToBqInspectFailure(
+      { code: 404, message: 'Not found: Job' },
+      'bigquery.jobs.get',
+      { jobRef: { projectId: 'p', jobId: 'j' } },
+    );
+
+    expect(failure.details.code).toBe('BQINSPECT_JOB_NOT_FOUND');
+    expect(failure.details.hint).toContain('Add location on each job ref');
+  });
+
   it('maps missing status to internal errors', () => {
     const failure = mapGoogleErrorToBqInspectFailure(new Error('network'));
 

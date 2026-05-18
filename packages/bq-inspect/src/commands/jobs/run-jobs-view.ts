@@ -64,3 +64,5 @@ export const runJobsGet = createRunJobsView('full', 'jobs get');
 export const runJobsSummary = createRunJobsView('summary', 'jobs summary');
 export const runJobsQuery = createRunJobsView('query', 'jobs query');
 export const runJobsPerformance = createRunJobsView('performance', 'jobs performance');
+export const runJobsLineage = createRunJobsView('lineage', 'jobs lineage');
+export const runJobsImpact = createRunJobsView('impact', 'jobs impact');

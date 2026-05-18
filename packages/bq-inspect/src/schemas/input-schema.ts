@@ -14,7 +14,7 @@ const jobsViewInputProperties = {
           type: 'string',
           minLength: 1,
           description:
-            'BigQuery location for the job (for example US or EU). Omit when the API does not require it.',
+            'BigQuery location for the job (for example US, EU, or asia-northeast1). Required in practice for regional jobs; copy from jobs.list jobReference.location. Omitting location often yields 403 on jobs.get.',
         },
         jobId: { type: 'string', minLength: 1 },
       },
@@ -44,6 +44,8 @@ export const jobsQueryInputSchema = makeJobsViewInputSchema('bq-inspect jobs que
 export const jobsPerformanceInputSchema = makeJobsViewInputSchema(
   'bq-inspect jobs performance input',
 );
+export const jobsLineageInputSchema = makeJobsViewInputSchema('bq-inspect jobs lineage input');
+export const jobsImpactInputSchema = makeJobsViewInputSchema('bq-inspect jobs impact input');
 
 export const jobsListInputSchema = {
   $schema: JSON_SCHEMA_DRAFT_2020_12,
@@ -61,7 +63,7 @@ export const jobsListInputSchema = {
     allUsers: {
       type: 'boolean',
       description:
-        'When true, list jobs from all users in the project (requires permission to list all users’ jobs).',
+        'When true, list jobs from all users in the project (requires permission to list all users’ jobs). In shared sandboxes, omitting this often returns an empty list even when jobs exist.',
     },
     minSlotMs: { type: 'string', pattern: '^[0-9]+$' },
     minBytesBilled: { type: 'string', pattern: '^[0-9]+$' },

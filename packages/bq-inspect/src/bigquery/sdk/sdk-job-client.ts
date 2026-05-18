@@ -1,7 +1,7 @@
 import { BigQuery, type GetJobsOptions, type GetJobsResponse } from '@google-cloud/bigquery';
 
+import { hintForApiError, type ApiErrorHintContext } from '../../core/shared/api-error-hints';
 import { BqInspectFailure, createBqInspectError } from '../../core/shared/errors';
-import { iamHintForApi } from '../../core/shared/iam-hints';
 
 import type { BqInspectErrorCode, JobRef } from '../../core/shared/types';
 import type {
@@ -102,6 +102,7 @@ function readNextPageToken(response: unknown): string | undefined {
 export function mapGoogleErrorToBqInspectFailure(
   error: unknown,
   api = 'bigquery.jobs.get',
+  context?: ApiErrorHintContext,
 ): BqInspectFailure {
   const status = resolveHttpStatus(error);
   const message = extractGoogleErrorMessage(error);
@@ -116,7 +117,7 @@ export function mapGoogleErrorToBqInspectFailure(
   }
 
   const code = mapHttpStatusToErrorCode(status);
-  const hint = code === 'BQINSPECT_PERMISSION_DENIED' ? iamHintForApi(api) : undefined;
+  const hint = hintForApiError(code, api, context);
 
   return new BqInspectFailure(
     createBqInspectError({
@@ -161,7 +162,7 @@ export class SdkBigQueryClient implements BigQueryInspectionClient {
 
       return metadata as unknown;
     } catch (error: unknown) {
-      throw mapGoogleErrorToBqInspectFailure(error, 'bigquery.jobs.get');
+      throw mapGoogleErrorToBqInspectFailure(error, 'bigquery.jobs.get', { jobRef: ref });
     }
   }
 

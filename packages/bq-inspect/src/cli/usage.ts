@@ -6,8 +6,10 @@ Usage:
 
 Commands (each supports --input-schema / --output-schema for JSON Schema on stdout):
   jobs summary     Job status, timing, bytes/slots (default inspection)
-  jobs query       SQL and JobConfigurationQuery
-  jobs performance Query plan, timeline, script/session stats
+  jobs query       SQL, configuration, and light lineage stats
+  jobs performance Query plan, timeline, performanceInsights, script/session stats
+  jobs lineage     Referenced tables, routines, datasets, destinations
+  jobs impact      DML stats, load/export/ML/search/spark side-effect stats
   jobs get         Full BigQuery Job JSON
   jobs list        List jobs (optional client-side filters in params)
   datasets get     Dataset metadata
@@ -21,7 +23,7 @@ Global:
   bq-inspect --help | -h
   bq-inspect <command> --help
 
-Agent workflow: jobs list → jobs summary | jobs query | jobs performance | jobs get
+Agent workflow: jobs list → jobs summary | jobs query | jobs performance | jobs lineage | jobs impact | jobs get
 
 Errors are JSON on stderr; success is JSON on stdout (except plain-text --help).
 `.trim();
@@ -80,6 +82,32 @@ Examples:
   bq-inspect jobs performance --params @./jobs-performance.json
 `.trim();
 
+export const JOBS_LINEAGE_USAGE = `
+Usage:
+  bq-inspect jobs lineage --params '<json>' | --params @file.json [options]
+
+${PARAMS_DISCOVERY}
+
+${JOBS_VIEW_PARAMS}
+
+Examples:
+  bq-inspect jobs lineage --params '{"jobs":[{"projectId":"my-proj","jobId":"abc"}]}'
+  bq-inspect jobs lineage --params @./jobs-lineage.json
+`.trim();
+
+export const JOBS_IMPACT_USAGE = `
+Usage:
+  bq-inspect jobs impact --params '<json>' | --params @file.json [options]
+
+${PARAMS_DISCOVERY}
+
+${JOBS_VIEW_PARAMS}
+
+Examples:
+  bq-inspect jobs impact --params '{"jobs":[{"projectId":"my-proj","jobId":"abc"}]}'
+  bq-inspect jobs impact --params @./jobs-impact.json
+`.trim();
+
 export const JOBS_GET_USAGE = `
 Usage:
   bq-inspect jobs get --params '<json>' | --params @file.json [options]
@@ -104,6 +132,9 @@ Params (see --input-schema):
   location, minCreationTime, maxCreationTime, pageToken, maxResults, allUsers
   minSlotMs, minBytesBilled, state, labels, parentJobId
   impersonateServiceAccount, impersonateDelegates
+
+  In shared projects use allUsers: true or jobs.list may return an empty array.
+  Copy jobReference.location from list output into job view commands.
 
 Examples:
   bq-inspect jobs list --params '{"projectId":"my-proj","location":"US","maxResults":50}'

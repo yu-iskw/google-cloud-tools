@@ -15,6 +15,8 @@ const bqInspectCoverageExclude = coverageExclude(
   'src/commands/jobs/query.ts',
   'src/commands/jobs/performance.ts',
   'src/commands/jobs/summary.ts',
+  'src/commands/jobs/lineage.ts',
+  'src/commands/jobs/impact.ts',
 );
 
 export default mergeConfig(

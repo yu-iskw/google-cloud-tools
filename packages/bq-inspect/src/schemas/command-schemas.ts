@@ -1,6 +1,8 @@
 import {
   datasetsGetInputSchema,
   jobsGetInputSchema,
+  jobsImpactInputSchema,
+  jobsLineageInputSchema,
   jobsListInputSchema,
   jobsPerformanceInputSchema,
   jobsQueryInputSchema,
@@ -11,6 +13,8 @@ import {
 import {
   catalogResourceOutputSchema,
   jobsGetOutputSchema,
+  jobsImpactOutputSchema,
+  jobsLineageOutputSchema,
   jobsListOutputSchema,
   jobsPerformanceOutputSchema,
   jobsQueryOutputSchema,
@@ -21,6 +25,8 @@ import {
 export type CommandId =
   | 'datasets get'
   | 'jobs get'
+  | 'jobs impact'
+  | 'jobs lineage'
   | 'jobs list'
   | 'jobs performance'
   | 'jobs query'
@@ -30,48 +36,42 @@ export type CommandId =
 
 export type JobsViewCommandId = Extract<
   CommandId,
-  'jobs get' | 'jobs performance' | 'jobs query' | 'jobs summary'
+  'jobs get' | 'jobs impact' | 'jobs lineage' | 'jobs performance' | 'jobs query' | 'jobs summary'
 >;
 
 type SchemaKind = 'input' | 'output';
 
-export function getCommandSchema(command: CommandId, kind: SchemaKind): unknown {
-  const key = `${command}:${kind}`;
+const commandSchemas: Record<`${CommandId}:${SchemaKind}`, unknown> = {
+  'jobs get:input': jobsGetInputSchema,
+  'jobs get:output': jobsGetOutputSchema,
+  'jobs summary:input': jobsSummaryInputSchema,
+  'jobs summary:output': jobsSummaryOutputSchema,
+  'jobs query:input': jobsQueryInputSchema,
+  'jobs query:output': jobsQueryOutputSchema,
+  'jobs performance:input': jobsPerformanceInputSchema,
+  'jobs performance:output': jobsPerformanceOutputSchema,
+  'jobs lineage:input': jobsLineageInputSchema,
+  'jobs lineage:output': jobsLineageOutputSchema,
+  'jobs impact:input': jobsImpactInputSchema,
+  'jobs impact:output': jobsImpactOutputSchema,
+  'jobs list:input': jobsListInputSchema,
+  'jobs list:output': jobsListOutputSchema,
+  'datasets get:input': datasetsGetInputSchema,
+  'datasets get:output': catalogResourceOutputSchema,
+  'tables list:input': tablesListInputSchema,
+  'tables list:output': tablesListOutputSchema,
+  'tables get:input': tablesGetInputSchema,
+  'tables get:output': catalogResourceOutputSchema,
+};
 
-  switch (key) {
-    case 'jobs get:input':
-      return jobsGetInputSchema;
-    case 'jobs get:output':
-      return jobsGetOutputSchema;
-    case 'jobs summary:input':
-      return jobsSummaryInputSchema;
-    case 'jobs summary:output':
-      return jobsSummaryOutputSchema;
-    case 'jobs query:input':
-      return jobsQueryInputSchema;
-    case 'jobs query:output':
-      return jobsQueryOutputSchema;
-    case 'jobs performance:input':
-      return jobsPerformanceInputSchema;
-    case 'jobs performance:output':
-      return jobsPerformanceOutputSchema;
-    case 'jobs list:input':
-      return jobsListInputSchema;
-    case 'jobs list:output':
-      return jobsListOutputSchema;
-    case 'datasets get:input':
-      return datasetsGetInputSchema;
-    case 'datasets get:output':
-      return catalogResourceOutputSchema;
-    case 'tables list:input':
-      return tablesListInputSchema;
-    case 'tables list:output':
-      return tablesListOutputSchema;
-    case 'tables get:input':
-      return tablesGetInputSchema;
-    case 'tables get:output':
-      return catalogResourceOutputSchema;
-    default:
-      throw new Error(`Unhandled schema key: ${key}`);
+export function getCommandSchema(command: CommandId, kind: SchemaKind): unknown {
+  const key = `${command}:${kind}` as `${CommandId}:${SchemaKind}`;
+  // eslint-disable-next-line security/detect-object-injection -- key is a typed CommandId:SchemaKind union
+  const schema = commandSchemas[key];
+
+  if (schema === undefined) {
+    throw new Error(`Unhandled schema key: ${key}`);
   }
+
+  return schema;
 }

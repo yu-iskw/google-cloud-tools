@@ -23,7 +23,7 @@ Run from the **repository root**:
 
 ```bash
 pnpm build          # all packages
-pnpm test           # Vitest workspace
+pnpm test           # Vitest workspace (with coverage thresholds)
 pnpm lint           # Trunk + Knip
 pnpm format         # Trunk formatters
 pnpm knip           # unused deps/exports (run when layout or deps change)

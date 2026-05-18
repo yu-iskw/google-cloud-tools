@@ -1,0 +1,41 @@
+{
+  "jobReference": {
+    "projectId": "analytics-prod",
+    "jobId": "job_lineage_1",
+    "location": "US"
+  },
+  "configuration": {
+    "query": {
+      "query": "SELECT * FROM `analytics-prod.dataset.users`",
+      "statementType": "SELECT"
+    }
+  },
+  "status": {
+    "state": "DONE"
+  },
+  "statistics": {
+    "query": {
+      "statementType": "SELECT",
+      "referencedTables": [
+        {
+          "projectId": "analytics-prod",
+          "datasetId": "dataset",
+          "tableId": "users"
+        }
+      ],
+      "queryPlan": [{ "name": "stage-0" }],
+      "timeline": [{ "elapsedMs": "100" }],
+      "dmlStats": {
+        "insertedRowCount": "0",
+        "deletedRowCount": "0",
+        "updatedRowCount": "0"
+      },
+      "performanceInsights": [{ "insight": "unused_columns" }],
+      "totalBytesProcessed": "999",
+      "totalSlotMs": "100"
+    },
+    "mlStatistics": {
+      "modelId": "model_1"
+    }
+  }
+}

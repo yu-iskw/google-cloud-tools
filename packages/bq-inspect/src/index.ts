@@ -21,6 +21,19 @@ export { iamHintForApi } from './core/shared/iam-hints';
 export { inspectJobs } from './core/jobs/get';
 export type { InspectJobOptions } from './core/jobs/get';
 export { projectJob } from './core/jobs/project-job';
+export type {
+  BigQueryJob,
+  JobImpactProjection,
+  JobLineageProjection,
+  JobPerformanceProjection,
+  JobProjection,
+  JobQueryProjection,
+  JobStatistics,
+  JobStatisticsQuery,
+  JobSummaryProjection,
+  TableReference,
+} from './core/jobs/bigquery-job-types';
+export { isBigQueryJob } from './core/jobs/bigquery-job-types';
 export { listJobs } from './core/jobs/list';
 export { filterJobSummaries, type JobFilters } from './core/jobs/filter';
 export { getDatasetMetadata } from './core/datasets/get';
@@ -60,6 +73,8 @@ export { runJobsGet } from './commands/jobs/get';
 export { runJobsSummary } from './commands/jobs/summary';
 export { runJobsQuery } from './commands/jobs/query';
 export { runJobsPerformance } from './commands/jobs/performance';
+export { runJobsLineage } from './commands/jobs/lineage';
+export { runJobsImpact } from './commands/jobs/impact';
 export type {
   JobsViewCommandOptions,
   JobsViewCommandOptions as JobsGetCommandOptions,

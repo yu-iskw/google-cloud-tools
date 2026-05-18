@@ -2,6 +2,8 @@ import {
   DATASETS_GET_USAGE,
   GLOBAL_USAGE,
   JOBS_GET_USAGE,
+  JOBS_IMPACT_USAGE,
+  JOBS_LINEAGE_USAGE,
   JOBS_LIST_USAGE,
   JOBS_PERFORMANCE_USAGE,
   JOBS_QUERY_USAGE,
@@ -11,7 +13,7 @@ import {
   SCHEMA_USAGE,
   TABLES_GET_USAGE,
   TABLES_LIST_USAGE,
-} from './cli-usage';
+} from './usage';
 
 function commandHelpForKey(key: string): string | undefined {
   switch (key) {
@@ -27,6 +29,10 @@ function commandHelpForKey(key: string): string | undefined {
       return JOBS_QUERY_USAGE;
     case 'jobs performance':
       return JOBS_PERFORMANCE_USAGE;
+    case 'jobs lineage':
+      return JOBS_LINEAGE_USAGE;
+    case 'jobs impact':
+      return JOBS_IMPACT_USAGE;
     case 'jobs get':
       return JOBS_GET_USAGE;
     case 'jobs list':

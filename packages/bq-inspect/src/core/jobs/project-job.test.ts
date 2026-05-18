@@ -6,8 +6,8 @@ import { describe, expect, it } from 'vitest';
 
 import { projectJob } from './project-job';
 
-function loadFixture(): Record<string, unknown> {
-  const fixturePath = path.join(__dirname, '..', '..', 'fixtures', 'successful-query-job.json');
+function loadFixture(name = 'successful-query-job.json'): Record<string, unknown> {
+  const fixturePath = path.join(__dirname, '..', '..', 'fixtures', name);
 
   return JSON.parse(readFileSync(fixturePath, 'utf8')) as Record<string, unknown>;
 }
@@ -42,14 +42,20 @@ describe('projectJob', () => {
     expect(queryStats.timeline).toBeUndefined();
   });
 
-  it('query keeps SQL and configuration without statistics', () => {
-    const projected = projectJob(loadFixture(), 'query') as Record<string, unknown>;
+  it('query keeps SQL, configuration, and lineage-related statistics', () => {
+    const projected = projectJob(loadFixture('query-job-with-lineage.json'), 'query') as Record<
+      string,
+      unknown
+    >;
 
-    expect(projected.statistics).toBeUndefined();
     expect(String((projected.configuration as { query: { query: string } }).query.query)).toContain(
       'SELECT',
     );
-    expect(projected.labels).toEqual({ team: 'data-platform' });
+    const queryStats = (projected.statistics as { query: Record<string, unknown> }).query;
+    expect(queryStats.referencedTables).toHaveLength(1);
+    expect(queryStats.queryPlan).toBeUndefined();
+    expect(queryStats.dmlStats).toBeUndefined();
+    expect(queryStats.totalSlotMs).toBe('100');
   });
 
   it('performance keeps queryPlan and omits configuration SQL', () => {
@@ -74,6 +80,33 @@ describe('projectJob', () => {
     const queryStats = (projected.statistics as { query: Record<string, unknown> }).query;
     expect(queryStats.queryPlan).toEqual([{ name: 'stage' }]);
     expect(queryStats.query).toBeUndefined();
+  });
+
+  it('lineage keeps referencedTables and drops queryPlan', () => {
+    const projected = projectJob(loadFixture('query-job-with-lineage.json'), 'lineage') as Record<
+      string,
+      unknown
+    >;
+
+    expect(projected.configuration).toBeUndefined();
+    const queryStats = (projected.statistics as { query: Record<string, unknown> }).query;
+    expect(queryStats.referencedTables).toHaveLength(1);
+    expect(queryStats.queryPlan).toBeUndefined();
+    expect(queryStats.dmlStats).toBeUndefined();
+  });
+
+  it('impact keeps dmlStats and job-type statistics', () => {
+    const projected = projectJob(loadFixture('query-job-with-lineage.json'), 'impact') as Record<
+      string,
+      unknown
+    >;
+
+    const stats = projected.statistics as Record<string, unknown>;
+    const queryStats = stats.query as Record<string, unknown>;
+    expect(queryStats.dmlStats).toBeDefined();
+    expect(queryStats.referencedTables).toBeUndefined();
+    expect(stats.mlStatistics).toEqual({ modelId: 'model_1' });
+    expect(stats.queryPlan).toBeUndefined();
   });
 
   it('full returns the job unchanged', () => {

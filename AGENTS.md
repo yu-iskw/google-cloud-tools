@@ -26,7 +26,7 @@ Production-ready **TypeScript monorepo** template:
 ```bash
 pnpm install    # Dependencies (includes Trunk launcher; use pnpm lint/format below)
 pnpm build      # Build all packages
-pnpm test       # Vitest across the workspace
+pnpm test       # Vitest across the workspace (with coverage)
 pnpm lint       # Trunk linters
 pnpm format     # Trunk formatters
 pnpm clean      # Clean build artifacts
@@ -76,7 +76,7 @@ Split so agents and CI get consistent, low-conflict feedback:
 - Tests in `tests/` or colocated `*.test.ts`
 - **Vitest** for unit and integration tests
 - Aim for strong coverage on core logic
-- Run `pnpm test` before committing; `pnpm test:coverage` runs Vitest projects — shared coverage defaults in root `vitest.shared.ts`, workspace-specific thresholds in `packages/*/vitest.config.ts` (see `packages/bq-inspect/CONTRIBUTING.md`)
+- Run `pnpm test` before committing (includes coverage). Use `pnpm test:fast` for a quick pass without coverage. Shared coverage defaults in root `vitest.shared.ts`, workspace-specific thresholds in `packages/*/vitest.config.ts` (see `packages/bq-inspect/CONTRIBUTING.md`)
 
 ## Git workflow
 

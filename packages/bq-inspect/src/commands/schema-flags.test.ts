@@ -4,6 +4,8 @@ import { BqInspectFailure } from '../core/shared/errors';
 
 import { runDatasetsGet } from './datasets/get';
 import { runJobsGet } from './jobs/get';
+import { runJobsImpact } from './jobs/impact';
+import { runJobsLineage } from './jobs/lineage';
 import { runJobsList } from './jobs/list';
 import { runJobsSummary } from './jobs/summary';
 import { runTablesGet } from './tables/get';
@@ -32,6 +34,20 @@ describe('per-command schema flags', () => {
 
     expect(schema).toMatchObject({ title: 'bq-inspect jobs summary output' });
     expect(JSON.stringify(schema)).toContain('"summary"');
+  });
+
+  it('jobs lineage --output-schema includes view const', async () => {
+    const schema = await runJobsLineage(['--output-schema'], { toolVersion: '0.1.0' });
+
+    expect(schema).toMatchObject({ title: 'bq-inspect jobs lineage output' });
+    expect(JSON.stringify(schema)).toContain('"lineage"');
+  });
+
+  it('jobs impact --output-schema includes view const', async () => {
+    const schema = await runJobsImpact(['--output-schema'], { toolVersion: '0.1.0' });
+
+    expect(schema).toMatchObject({ title: 'bq-inspect jobs impact output' });
+    expect(JSON.stringify(schema)).toContain('"impact"');
   });
 
   it('rejects both schema flags on jobs get', async () => {

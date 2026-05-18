@@ -47,6 +47,12 @@ web_modules/
 # TypeScript cache
 *.tsbuildinfo
 
+# Accidental tsc output next to Vitest config (configs are consumed as .ts)
+/vitest.shared.js
+/vitest.shared.d.ts
+packages/*/vitest.config.js
+packages/*/vitest.config.d.ts
+
 # Optional npm cache directory
 .npm
 
@@ -133,6 +139,9 @@ dist
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# pnpm
+.pnpm-store/
 
 # Vite logs files
 vite.config.js.timestamp-*

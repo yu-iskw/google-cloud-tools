@@ -3,10 +3,12 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 
-import { resolveHelpText, stripTrailingHelpFlags } from './cli-help';
-import { GLOBAL_USAGE } from './cli-usage';
+import { resolveHelpText, stripTrailingHelpFlags } from './cli/help';
+import { GLOBAL_USAGE } from './cli/usage';
 import { runDatasetsGet } from './commands/datasets/get';
 import { runJobsGet } from './commands/jobs/get';
+import { runJobsImpact } from './commands/jobs/impact';
+import { runJobsLineage } from './commands/jobs/lineage';
 import { runJobsList } from './commands/jobs/list';
 import { runJobsPerformance } from './commands/jobs/performance';
 import { runJobsQuery } from './commands/jobs/query';
@@ -79,6 +81,14 @@ async function main(rawArgv: string[]): Promise<void> {
     {
       test: (a) => a[0] === 'jobs' && a[1] === 'performance',
       run: (a) => runJobsPerformance(a.slice(2), { toolVersion }),
+    },
+    {
+      test: (a) => a[0] === 'jobs' && a[1] === 'lineage',
+      run: (a) => runJobsLineage(a.slice(2), { toolVersion }),
+    },
+    {
+      test: (a) => a[0] === 'jobs' && a[1] === 'impact',
+      run: (a) => runJobsImpact(a.slice(2), { toolVersion }),
     },
     {
       test: (a) => a[0] === 'jobs' && a[1] === 'get',

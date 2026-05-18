@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { resolveHelpText, stripTrailingHelpFlags } from './cli-help';
-import { GLOBAL_USAGE, JOBS_GET_USAGE } from './cli-usage';
+import { resolveHelpText, stripTrailingHelpFlags } from './help';
+import { GLOBAL_USAGE, JOBS_GET_USAGE } from './usage';
 
 describe('stripTrailingHelpFlags', () => {
   it('strips trailing --help and -h', () => {

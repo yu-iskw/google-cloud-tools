@@ -21,8 +21,7 @@ All commands assume the **repository root** as the current directory.
 
 ```bash
 pnpm --filter bq-inspect build
-pnpm test -- packages/bq-inspect
-pnpm test:coverage
+pnpm test:fast -- packages/bq-inspect   # quick pass; pnpm test includes coverage
 pnpm format:eslint -- packages/bq-inspect/src
 pnpm lint:eslint -- packages/bq-inspect/src
 ```
@@ -36,9 +35,9 @@ Shared defaults (provider, reporters, 85%/80% threshold block, `perFile`) live i
 | `src/core/**`                                              | 85%                            | 80%      |
 | `src/cli/input/**`, `src/cli/params/**`, `src/bigquery/**` | 85%                            | 80%      |
 
-**Workspace-only coverage excludes** (in addition to shared patterns): `parsed-input-types.ts`, `src/core/shared/types.ts`, `src/bigquery/client/job-client.ts`, and one-line job view re-exports under `src/commands/jobs/` (`get.ts`, `query.ts`, `performance.ts`, `summary.ts`).
+**Workspace-only coverage excludes:** see `bqInspectCoverageExclude` in [`vitest.config.ts`](vitest.config.ts) (paths relative to `src/`).
 
-CI runs `pnpm test:coverage` (see [`.github/workflows/test.yml`](../../.github/workflows/test.yml)).
+CI runs `pnpm test` (see [`.github/workflows/test.yml`](../../.github/workflows/test.yml)).
 
 Before a change that might affect workspace-wide tooling or unused exports:
 
@@ -90,21 +89,21 @@ Parsing layers:
 
 Published usage strings live in:
 
-- [`src/cli-usage.ts`](src/cli-usage.ts) — all `*_USAGE` constants (global and per-command).
-- [`src/cli-help.ts`](src/cli-help.ts) — maps `argv` keys to those strings for `bq-inspect … --help`.
+- [`src/cli/usage.ts`](src/cli/usage.ts) — all `*_USAGE` constants (global and per-command).
+- [`src/cli/help.ts`](src/cli/help.ts) — maps `argv` keys to those strings for `bq-inspect … --help`.
 
 **Rule:** Any new or changed params field must:
 
 1. Update JSON Schema in [`src/schemas/input-schema.ts`](src/schemas/input-schema.ts) (runtime validation follows automatically).
 2. Update [`src/cli/input/map-input.ts`](src/cli/input/map-input.ts) only if the field needs domain mapping beyond schema shape.
-3. Update the matching block in `cli-usage.ts`.
+3. Update the matching block in [`cli/usage.ts`](src/cli/usage.ts).
 4. Update [README.md](README.md) if the field is user-facing in examples or narrative.
 
-Keep [README.md](README.md) examples aligned with `cli-usage.ts`; end users treat **`--help`** as authoritative.
+Keep [README.md](README.md) examples aligned with `cli/usage.ts`; end users treat **`--help`** as authoritative.
 
 ## Architecture (minimal hexagonal)
 
-- **`cli/`** — Parse pipeline by stage (`argv/`, `params/`, `input/`); not split by BigQuery resource.
+- **`cli/`** — CLI-facing mechanics: parse pipeline (`argv/`, `params/`, `input/`) plus help (`usage.ts`, `help.ts`); not split by BigQuery resource. [`cli.ts`](src/cli.ts) at `src/` root is the thin bin dispatcher only.
 - **`commands/`** — Thin CLI adapters grouped by resource (`jobs/`, `datasets/`, `tables/`), plus shared `command-shared.ts` and meta `schema.ts`: parse operational argv, build the BigQuery client, call application functions.
 - **`core/`** — Use cases grouped by resource (`jobs`, `datasets`, `tables`) plus pure helpers (`project-job`, `shared`).
 - **`bigquery/`** — Adapter role (`client/` ports, `auth/` ADC + impersonation, `sdk/` `SdkBigQueryClient`); not split by resource.
@@ -115,11 +114,13 @@ Keep [README.md](README.md) examples aligned with `cli-usage.ts`; end users trea
 - `bigquery/client` — port types (`BigQueryInspectionClient`, refs, list request types)
 - `bigquery/auth` — ADC + impersonation (`createAuthClient`)
 - `bigquery/sdk` — `SdkBigQueryClient` and error mapping helpers
+- `cli/usage` — `*_USAGE` strings for `--help`
+- `cli/help` — argv → usage mapping for `--help`
 - `cli/argv` — operational flags (`--params`, schemas)
 - `cli/params` — JSON / `@file` resolution
 - `cli/input` — validate + map + parsed types
 - `commands/` — CLI subcommands (`jobs/`, `datasets/`, `tables/`, plus shared `command-shared.ts`, `schema.ts`)
-- `core/jobs` — `inspectJobs` with job views (`summary`, `query`, `performance`, `full`) and `jobs list` (+ client-side filters)
+- `core/jobs` — `inspectJobs` with job views (`summary`, `query`, `performance`, `lineage`, `impact`, `full`) and `jobs list` (+ client-side filters)
 - `core/datasets` — `datasets get`
 - `core/tables` — `tables list` and `tables get`
 - `core/jobs/project-job` — in-process projection of `jobs.get` payloads per view
@@ -139,11 +140,11 @@ Prefer state-based tests on observable JSON output; avoid new mocks unless neces
 ## Pull request checklist
 
 - [ ] `pnpm --filter bq-inspect build`
-- [ ] `pnpm test:coverage` from repo root (or `pnpm test` for a quick pass)
+- [ ] `pnpm test` from repo root (or `pnpm test:fast` while iterating)
 - [ ] `pnpm lint:eslint -- packages/bq-inspect/src`
 - [ ] `pnpm knip` (if dependencies, exports, or workspace layout changed)
 - [ ] `pnpm lint` (Trunk + Knip) before merge when touching shared config or docs CI cares about
-- [ ] CLI or flag changes: `cli-usage.ts` (+ README if user-visible)
+- [ ] CLI or flag changes: `cli/usage.ts` (+ README if user-visible)
 
 ## License
 

@@ -9,7 +9,7 @@ export const coverageThresholdBlock = {
 } as const;
 
 /** Excludes applied to every workspace with coverage enabled. */
-export const baseCoverageExclude = [
+const baseCoverageExclude = [
   '**/*.{test,spec}.ts',
   '**/test-support/**',
   '**/fixtures/**',
@@ -34,7 +34,7 @@ export const sharedCoverageConfig = defineConfig({
     coverage: {
       provider: 'v8',
       include: ['src/**/*.ts'],
-      exclude: [...baseCoverageExclude],
+      exclude: coverageExclude(),
       reporter: ['text', 'text-summary', 'html'],
       thresholds: {
         perFile: true,

@@ -4,7 +4,7 @@ export interface JobRef {
   jobId: string;
 }
 
-export type JobView = 'full' | 'performance' | 'query' | 'summary';
+export type JobView = 'full' | 'impact' | 'lineage' | 'performance' | 'query' | 'summary';
 
 export type BqInspectSchemaVersion = 'bq-inspect.v1';
 

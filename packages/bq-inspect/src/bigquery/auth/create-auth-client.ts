@@ -12,8 +12,6 @@ export interface AuthClientOptions {
   impersonateDelegates?: string[];
 }
 
-export { normalizeDelegateList, normalizeOptionalTrimmed };
-
 export async function createAuthClient(options: AuthClientOptions = {}): Promise<AuthClient> {
   const targetPrincipal = normalizeOptionalTrimmed(options.impersonateServiceAccount);
 
