@@ -4,7 +4,7 @@ import { BqInspectFailure, createBqInspectError } from '../shared/errors';
 
 import { getTableMetadata } from './get';
 
-import type { BigQueryInspectionClient } from '../../bigquery/client/job-client';
+import type { BigQueryInspectionClient } from '../../bigquery/port/inspection-client';
 
 describe('getTableMetadata', () => {
   it('returns table metadata on success', async () => {

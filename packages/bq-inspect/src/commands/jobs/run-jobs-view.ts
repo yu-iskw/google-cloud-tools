@@ -6,7 +6,7 @@ import { impersonationRequestFields } from '../../core/shared/impersonation-fiel
 import { getCommandSchema } from '../../schemas/command-schemas';
 import { createSdkInspectionClientFromInput } from '../command-shared';
 
-import type { BigQueryJobClient } from '../../bigquery/client/job-client';
+import type { BigQueryJobClient } from '../../bigquery/port/inspection-client';
 import type { ParsedJobsViewInput } from '../../cli/input/input-parsers';
 import type { JobView } from '../../core/shared/types';
 import type { JobsViewCommandId } from '../../schemas/command-schemas';

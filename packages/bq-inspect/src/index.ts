@@ -47,20 +47,20 @@ export type {
   ListJobsPage,
   ListJobsRequest,
   TableRef,
-} from './bigquery/client/job-client';
+} from './bigquery/port/inspection-client';
 export { createAuthClient } from './bigquery/auth/create-auth-client';
 export type { AuthClientOptions } from './bigquery/auth/create-auth-client';
 export { normalizeDelegateList, normalizeOptionalTrimmed } from './core/shared/normalize';
 export {
-  SdkBigQueryClient,
   extractGoogleErrorMessage,
   mapGoogleErrorToBqInspectFailure,
   mapHttpStatusToErrorCode,
   resolveHttpStatus,
-} from './bigquery/sdk/sdk-job-client';
+} from './bigquery/errors/google-api-errors';
+export { SdkBigQueryClient } from './bigquery/adapters/google-cloud/sdk-inspection-client';
 
 /** @deprecated Use {@link SdkBigQueryClient} */
-export { SdkBigQueryClient as SdkBigQueryJobClient } from './bigquery/sdk/sdk-job-client';
+export { SdkBigQueryClient as SdkBigQueryJobClient } from './bigquery/adapters/google-cloud/sdk-inspection-client';
 
 export { FixtureBigQueryClient, FixtureJobClient } from './test-support/fixture-job-client';
 export type { FixtureBigQueryInput } from './test-support/fixture-job-client';

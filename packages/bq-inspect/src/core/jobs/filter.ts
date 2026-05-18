@@ -22,24 +22,6 @@ function readBigIntPath(input: unknown, path: string[]): bigint | undefined {
   return undefined;
 }
 
-function readStringPath(input: unknown, path: string[]): string | undefined {
-  let current: unknown = input;
-
-  for (const key of path) {
-    if (typeof current !== 'object' || current === null || !(key in current)) {
-      return undefined;
-    }
-
-    current = (current as Record<string, unknown>)[key];
-  }
-
-  if (typeof current === 'string') {
-    return current;
-  }
-
-  return undefined;
-}
-
 function readLabels(job: unknown): Record<string, string> | undefined {
   if (typeof job !== 'object' || job === null || !('labels' in job)) {
     return undefined;
@@ -63,41 +45,45 @@ function readLabels(job: unknown): Record<string, string> | undefined {
 }
 
 function totalSlotMs(job: unknown): bigint | undefined {
-  return (
-    readBigIntPath(job, ['statistics', 'query', 'totalSlotMs']) ??
-    readBigIntPath(job, ['statistics', 'totalSlotMs'])
-  );
+  const querySlots = readBigIntPath(job, ['statistics', 'query', 'totalSlotMs']);
+
+  if (querySlots !== undefined) {
+    return querySlots;
+  }
+
+  return readBigIntPath(job, ['statistics', 'totalSlotMs']);
 }
 
 function totalBytesBilled(job: unknown): bigint | undefined {
   return readBigIntPath(job, ['statistics', 'query', 'totalBytesBilled']);
 }
 
-function jobState(job: unknown): string | undefined {
-  return readStringPath(job, ['status', 'state']);
-}
-
-function parentJobId(job: unknown): string | undefined {
-  return readStringPath(job, ['statistics', 'parentJobId']);
-}
-
+/** Post-list filters only (fields BigQuery jobs.list cannot filter server-side). */
 export interface JobFilters {
   minSlotMs?: bigint;
   minBytesBilled?: bigint;
-  state?: string;
   labels?: Record<string, string>;
-  parentJobId?: string;
+}
+
+function hasActiveJobFilters(filters: JobFilters): boolean {
+  return (
+    filters.minSlotMs !== undefined ||
+    filters.minBytesBilled !== undefined ||
+    (filters.labels !== undefined && Object.keys(filters.labels).length > 0)
+  );
 }
 
 export function filterJobSummaries(jobs: unknown[], filters: JobFilters): unknown[] {
-  return jobs.filter((job) => matchesFilters(job, filters));
-}
-
-function matchesFilters(job: unknown, filters: JobFilters): boolean {
-  if (filters.state !== undefined && jobState(job) !== filters.state) {
-    return false;
+  if (!hasActiveJobFilters(filters)) {
+    return jobs;
   }
 
+  const labelsFilterActive = filters.labels !== undefined && Object.keys(filters.labels).length > 0;
+
+  return jobs.filter((job) => matchesFilters(job, filters, labelsFilterActive));
+}
+
+function matchesFilters(job: unknown, filters: JobFilters, labelsFilterActive: boolean): boolean {
   if (filters.minSlotMs !== undefined) {
     const slot = totalSlotMs(job);
 
@@ -114,19 +100,13 @@ function matchesFilters(job: unknown, filters: JobFilters): boolean {
     }
   }
 
-  if (filters.labels !== undefined && Object.keys(filters.labels).length > 0) {
+  if (labelsFilterActive && filters.labels !== undefined) {
     const jobLabels = readLabels(job) ?? {};
 
     for (const [key, value] of Object.entries(filters.labels)) {
       if (jobLabels[key] !== value) {
         return false;
       }
-    }
-  }
-
-  if (filters.parentJobId !== undefined && filters.parentJobId.length > 0) {
-    if (parentJobId(job) !== filters.parentJobId) {
-      return false;
     }
   }
 

@@ -1,4 +1,4 @@
-import type { ListJobsRequest } from '../../bigquery/client/job-client';
+import type { ListJobsRequest } from '../../bigquery/types/list-jobs';
 import type { JobFilters } from '../../core/jobs/filter';
 import type { ImpersonationFields } from '../../core/shared/impersonation-fields';
 import type { JobRef } from '../../core/shared/types';

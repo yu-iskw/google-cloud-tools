@@ -106,14 +106,16 @@ Keep [README.md](README.md) examples aligned with `cli/usage.ts`; end users trea
 - **`cli/`** — CLI-facing mechanics: parse pipeline (`argv/`, `params/`, `input/`) plus help (`usage.ts`, `help.ts`); not split by BigQuery resource. [`cli.ts`](src/cli.ts) at `src/` root is the thin bin dispatcher only.
 - **`commands/`** — Thin CLI adapters grouped by resource (`jobs/`, `datasets/`, `tables/`), plus shared `command-shared.ts` and meta `schema.ts`: parse operational argv, build the BigQuery client, call application functions.
 - **`core/`** — Use cases grouped by resource (`jobs`, `datasets`, `tables`) plus pure helpers (`project-job`, `shared`).
-- **`bigquery/`** — Adapter role (`client/` ports, `auth/` ADC + impersonation, `sdk/` `SdkBigQueryClient`); not split by resource.
+- **`bigquery/`** — Transport layer (`auth/`, `types/`, `port/`, `errors/`, `adapters/google-cloud/`); not split by REST resource.
 - **`schemas/`** — JSON Schema contracts for agents; [`command-schemas.ts`](src/schemas/command-schemas.ts) resolves per-command schemas for `--input-schema` / `--output-schema`.
 
 ## Package layout (`src/`)
 
-- `bigquery/client` — port types (`BigQueryInspectionClient`, refs, list request types)
 - `bigquery/auth` — ADC + impersonation (`createAuthClient`)
-- `bigquery/sdk` — `SdkBigQueryClient` and error mapping helpers
+- `bigquery/types` — transport DTOs (`DatasetRef`, `ListJobsRequest`, …)
+- `bigquery/port` — `BigQueryInspectionClient` port
+- `bigquery/errors` — Google API error → `BqInspectFailure` mapping
+- `bigquery/adapters/google-cloud` — `SdkBigQueryClient`
 - `cli/usage` — `*_USAGE` strings for `--help`
 - `cli/help` — argv → usage mapping for `--help`
 - `cli/argv` — operational flags (`--params`, schemas)

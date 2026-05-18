@@ -55,21 +55,59 @@ export const jobsListInputSchema = {
   additionalProperties: false,
   properties: {
     projectId: { type: 'string', minLength: 1 },
-    location: { type: 'string', minLength: 1 },
-    minCreationTime: { type: 'string', format: 'date-time' },
-    maxCreationTime: { type: 'string', format: 'date-time' },
-    pageToken: { type: 'string', minLength: 1 },
-    maxResults: { type: 'integer', minimum: 1 },
+    minCreationTime: {
+      type: 'string',
+      format: 'date-time',
+      description: 'Forwarded to jobs.list minCreationTime (API).',
+    },
+    maxCreationTime: {
+      type: 'string',
+      format: 'date-time',
+      description: 'Forwarded to jobs.list maxCreationTime (API).',
+    },
+    pageToken: {
+      type: 'string',
+      minLength: 1,
+      description: 'Forwarded to jobs.list pageToken (API).',
+    },
+    maxResults: {
+      type: 'integer',
+      minimum: 1,
+      description: 'Forwarded to jobs.list maxResults (API).',
+    },
     allUsers: {
       type: 'boolean',
       description:
-        'When true, list jobs from all users in the project (requires permission to list all users’ jobs). In shared sandboxes, omitting this often returns an empty list even when jobs exist.',
+        'Forwarded to jobs.list allUsers (API). When true, list jobs from all users in the project. In shared sandboxes, omitting this often returns an empty list even when jobs exist.',
     },
-    minSlotMs: { type: 'string', pattern: '^[0-9]+$' },
-    minBytesBilled: { type: 'string', pattern: '^[0-9]+$' },
-    state: { type: 'string', minLength: 1 },
-    labels: { type: 'object', additionalProperties: { type: 'string' } },
-    parentJobId: { type: 'string', minLength: 1 },
+    state: {
+      type: 'string',
+      minLength: 1,
+      description: 'Forwarded to jobs.list stateFilter (API): DONE, PENDING, or RUNNING.',
+    },
+    parentJobId: {
+      type: 'string',
+      minLength: 1,
+      description: 'Forwarded to jobs.list parentJobId (API): list child jobs of this parent.',
+    },
+    minSlotMs: {
+      type: 'string',
+      pattern: '^[0-9]+$',
+      description:
+        'Post-list filter: minimum totalSlotMs on the current page only; paginate with pageToken if needed.',
+    },
+    minBytesBilled: {
+      type: 'string',
+      pattern: '^[0-9]+$',
+      description:
+        'Post-list filter: minimum totalBytesBilled on the current page only; paginate with pageToken if needed.',
+    },
+    labels: {
+      type: 'object',
+      additionalProperties: { type: 'string' },
+      description:
+        'Post-list filter: job labels must match on the current page only; paginate with pageToken if needed.',
+    },
     impersonateServiceAccount: { type: 'string', minLength: 1 },
     impersonateDelegates: {
       type: 'array',

@@ -61,7 +61,7 @@ Unknown commands print global usage plus `Unknown command: <argv>`.
 
 Each view command calls `jobs.get` once per job and projects the response in memory. **`jobs get` returns the full [Job](https://cloud.google.com/bigquery/docs/reference/rest/v2/Job) resource** from the API; other commands slice it for smaller, task-focused JSON. Field names match [Job statistics](https://cloud.google.com/bigquery/docs/reference/rest/v2/Job#JobStatistics); many nested blocks (for example `statistics.mlStatistics`) appear only for matching job kinds.
 
-**Shared / sandbox projects:** `jobs list` is scoped by `location` and only returns your own jobs unless you set `allUsers: true`. In busy sandboxes, list with `allUsers: true`, then pass each job’s `jobReference.location` into job view commands. Omitting `location` on `jobs.get` often returns `BQINSPECT_PERMISSION_DENIED` (403), not a clear location error—the CLI hint will suggest adding `location` when that happens.
+**Shared / sandbox projects:** `jobs list` returns your own jobs unless you set `allUsers: true`. In busy sandboxes, list with `allUsers: true`, then pass each job’s `jobReference.location` into job view commands. Omitting `location` on `jobs.get` often returns `BQINSPECT_PERMISSION_DENIED` (403), not a clear location error—the CLI hint will suggest adding `location` when that happens.
 
 Example:
 
@@ -109,13 +109,12 @@ bq-inspect jobs get --params '{"jobs":[{"projectId":"YOUR_PROJECT","jobId":"YOUR
 
 Field list: [Params reference](#params-reference) (`jobs list`). Full schema: `bq-inspect jobs list --input-schema`.
 
-Use the same `location` you will use for `jobs.get`. In shared projects, set `"allUsers": true` or the list may be empty even when jobs exist.
+In shared projects, set `"allUsers": true` or the list may be empty even when jobs exist. Use `jobReference.location` from list output for job view commands.
 
 ```bash
 bq-inspect jobs list --params "$(cat <<'EOF'
 {
   "projectId": "YOUR_PROJECT",
-  "location": "US",
   "allUsers": true,
   "minCreationTime": "2026-05-17T00:00:00Z",
   "maxCreationTime": "2026-05-18T00:00:00Z",
@@ -165,12 +164,14 @@ Summaries from per-command `--help`; full types and constraints: `bq-inspect <co
 **`jobs list`:**
 
 - `projectId` (required)
-- `location`, `minCreationTime`, `maxCreationTime`, `pageToken`, `maxResults`, `allUsers` — passed to `jobs.list` (`allUsers: true` is often needed in shared sandboxes)
-- `minSlotMs`, `minBytesBilled`, `state`, `labels`, `parentJobId` — applied in the CLI after listing
+- **Forwarded to `jobs.list` (API):** `minCreationTime`, `maxCreationTime`, `pageToken`, `maxResults`, `allUsers`, `state`, `parentJobId` (`allUsers: true` is often needed in shared sandboxes)
+- **Post-list (current page only):** `minSlotMs`, `minBytesBilled`, `labels` — paginate with `pageToken` if you need more matches
+- Regional jobs: read `jobReference.location` from list output; pass `location` on job view commands, not on `jobs list` (BigQuery does not support a location query param on `jobs.list`)
 
 **Catalog** (`datasets get`, `tables list`, `tables get`):
 
 - `projectId`, `datasetId` (`tableId` required for `tables get`)
+- `tables list` returns all tables in the dataset (the SDK auto-paginates `tables.list`). Unlike `jobs list`, there is no `pageToken` on this command.
 
 ## JSON Schema discovery
 

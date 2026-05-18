@@ -4,7 +4,7 @@ import { normalizeJobRef } from '../shared/job-ref';
 
 import { projectJob } from './project-job';
 
-import type { BigQueryJobClient } from '../../bigquery/client/job-client';
+import type { BigQueryJobClient } from '../../bigquery/port/inspection-client';
 import type {
   BqInspectError,
   BqInspectSchemaVersion,

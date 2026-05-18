@@ -37,24 +37,12 @@ describe('filterJobSummaries', () => {
     expect(filtered).toEqual([job]);
   });
 
-  it('filters by state', () => {
-    const jobs = [baseJob, { ...baseJob, status: { state: 'RUNNING' } }];
-
-    expect(filterJobSummaries(jobs, { state: 'DONE' })).toHaveLength(1);
-  });
-
   it('filters by labels', () => {
     const jobs = [baseJob, { ...baseJob, labels: { team: 'other' } }];
 
     const filtered = filterJobSummaries(jobs, { labels: { team: 'data-platform' } });
 
     expect(filtered).toHaveLength(1);
-  });
-
-  it('filters by parent job id', () => {
-    const child = { ...baseJob, statistics: { ...baseJob.statistics, parentJobId: 'parent_1' } };
-
-    expect(filterJobSummaries([baseJob, child], { parentJobId: 'parent_1' })).toEqual([child]);
   });
 
   it('filters by minimum bytes billed', () => {

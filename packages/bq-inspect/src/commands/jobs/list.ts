@@ -2,10 +2,11 @@ import { parseOperationalArgv } from '../../cli/argv/operational-argv';
 import { parseJobsListInput } from '../../cli/input/input-parsers';
 import { resolveParamsValue } from '../../cli/params/parse-params';
 import { listJobs } from '../../core/jobs/list';
+import { impersonationRequestFields } from '../../core/shared/impersonation-fields';
 import { getCommandSchema } from '../../schemas/command-schemas';
 import { createSdkInspectionClientFromInput } from '../command-shared';
 
-import type { BigQueryInspectionClient } from '../../bigquery/client/job-client';
+import type { BigQueryInspectionClient } from '../../bigquery/port/inspection-client';
 import type { ParsedJobsListInput } from '../../cli/input/input-parsers';
 import type { jobsListInputSchema } from '../../schemas/input-schema';
 import type { jobsListOutputSchema } from '../../schemas/output-schema';
@@ -53,13 +54,6 @@ async function executeJobsList(
     toolVersion: commandOptions.toolVersion,
     listRequest: input.listRequest,
     filters: input.filters,
-    ...(input.impersonateServiceAccount === undefined
-      ? {}
-      : {
-          impersonateServiceAccount: input.impersonateServiceAccount,
-          ...(input.impersonateDelegates !== undefined && input.impersonateDelegates.length > 0
-            ? { impersonateDelegates: input.impersonateDelegates }
-            : {}),
-        }),
+    ...impersonationRequestFields(input),
   });
 }

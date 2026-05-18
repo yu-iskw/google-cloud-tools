@@ -55,24 +55,35 @@ describe('parseJobsGetInput', () => {
 });
 
 describe('parseJobsListInput', () => {
-  it('parses list request and client-side filters', () => {
+  it('parses API list request and post-list filters', () => {
     const input = parseJobsListInput({
       projectId: 'p',
-      location: 'US',
       allUsers: true,
       minCreationTime: '2026-05-17T00:00:00.000Z',
+      state: 'DONE',
+      parentJobId: 'parent_1',
       minSlotMs: '60000',
       labels: { env: 'prod' },
     });
 
     expect(input.listRequest).toEqual({
       projectId: 'p',
-      location: 'US',
       allUsers: true,
       minCreationTime: Date.parse('2026-05-17T00:00:00.000Z'),
+      state: 'DONE',
+      parentJobId: 'parent_1',
     });
     expect(input.filters.minSlotMs).toBe(60_000n);
     expect(input.filters.labels).toEqual({ env: 'prod' });
+  });
+
+  it('rejects location on jobs list (not a jobs.list API parameter)', () => {
+    expect(() =>
+      parseJobsListInput({
+        projectId: 'p',
+        location: 'EU',
+      }),
+    ).toThrow(BqInspectFailure);
   });
 });
 

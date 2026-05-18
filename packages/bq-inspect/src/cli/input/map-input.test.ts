@@ -54,11 +54,11 @@ describe('mapJobsListInput', () => {
       maxCreationTime: Date.parse('2026-05-18T00:00:00.000Z'),
       pageToken: 'tok',
       maxResults: 10,
+      state: 'DONE',
+      parentJobId: 'parent',
     });
     expect(input.filters).toEqual({
       minBytesBilled: 1000n,
-      state: 'DONE',
-      parentJobId: 'parent',
     });
   });
 });

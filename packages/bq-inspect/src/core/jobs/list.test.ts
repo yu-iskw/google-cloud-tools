@@ -1,36 +1,23 @@
 import { describe, expect, it } from 'vitest';
 
+import { FixtureBigQueryClient } from '../../test-support/fixture-job-client';
 import { BqInspectFailure, createBqInspectError } from '../shared/errors';
 
 import { listJobs } from './list';
 
-import type { BigQueryInspectionClient } from '../../bigquery/client/job-client';
+import type { BigQueryInspectionClient } from '../../bigquery/port/inspection-client';
 
 describe('listJobs', () => {
   it('returns filtered jobs and nextPageToken from the client page', async () => {
-    const client: BigQueryInspectionClient = {
-      async getJob() {
-        throw new Error('not used');
+    const client = new FixtureBigQueryClient({
+      listJobsPage: {
+        jobs: [
+          { status: { state: 'DONE' }, statistics: { query: { totalSlotMs: '5000' } } },
+          { status: { state: 'DONE' }, statistics: { query: { totalSlotMs: '10' } } },
+        ],
+        nextPageToken: 'next',
       },
-      async listJobs() {
-        return {
-          jobs: [
-            { status: { state: 'DONE' }, statistics: { query: { totalSlotMs: '5000' } } },
-            { status: { state: 'DONE' }, statistics: { query: { totalSlotMs: '10' } } },
-          ],
-          nextPageToken: 'next',
-        };
-      },
-      async getDataset() {
-        throw new Error('not used');
-      },
-      async listTables() {
-        throw new Error('not used');
-      },
-      async getTable() {
-        throw new Error('not used');
-      },
-    };
+    });
 
     const response = await listJobs({
       client,
@@ -113,52 +100,38 @@ describe('listJobs', () => {
   });
 
   it('echoes list request options and impersonation in the request envelope', async () => {
-    const client: BigQueryInspectionClient = {
-      async getJob() {
-        throw new Error('not used');
-      },
-      async listJobs() {
-        return { jobs: [] };
-      },
-      async getDataset() {
-        throw new Error('not used');
-      },
-      async listTables() {
-        throw new Error('not used');
-      },
-      async getTable() {
-        throw new Error('not used');
-      },
-    };
+    const client = new FixtureBigQueryClient({ listJobsPage: { jobs: [] } });
 
     const response = await listJobs({
       client,
       toolVersion: '0.1.0',
       listRequest: {
         projectId: 'p',
-        location: ' US ',
         allUsers: true,
         minCreationTime: 1,
         maxCreationTime: 2,
         pageToken: 'tok',
         maxResults: 10,
+        state: 'DONE',
+        parentJobId: 'parent_1',
       },
-      filters: { state: 'DONE', labels: { team: 'data' } },
+      filters: { labels: { team: 'data' } },
       impersonateServiceAccount: 'sa@p.iam.gserviceaccount.com',
       impersonateDelegates: ['d@p.iam.gserviceaccount.com'],
     });
 
     expect(response.request).toMatchObject({
       projectId: 'p',
-      location: 'US',
       allUsers: true,
       minCreationTime: 1,
       maxCreationTime: 2,
       pageToken: 'tok',
       maxResults: 10,
+      state: 'DONE',
+      parentJobId: 'parent_1',
       impersonateServiceAccount: 'sa@p.iam.gserviceaccount.com',
       impersonateDelegates: ['d@p.iam.gserviceaccount.com'],
-      filters: { state: 'DONE', labels: { team: 'data' } },
+      filters: { labels: { team: 'data' } },
     });
   });
 });

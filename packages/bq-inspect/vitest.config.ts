@@ -10,7 +10,9 @@ import {
 const bqInspectCoverageExclude = coverageExclude(
   '**/parsed-input-types.ts',
   'src/core/shared/types.ts',
-  'src/bigquery/client/job-client.ts',
+  'src/bigquery/port/inspection-client.ts',
+  'src/bigquery/types/refs.ts',
+  'src/bigquery/types/list-jobs.ts',
   'src/commands/jobs/get.ts',
   'src/commands/jobs/query.ts',
   'src/commands/jobs/performance.ts',

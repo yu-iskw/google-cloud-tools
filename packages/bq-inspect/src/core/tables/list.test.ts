@@ -4,7 +4,7 @@ import { BqInspectFailure, createBqInspectError } from '../shared/errors';
 
 import { listTablesMetadata } from './list';
 
-import type { BigQueryInspectionClient } from '../../bigquery/client/job-client';
+import type { BigQueryInspectionClient } from '../../bigquery/port/inspection-client';
 
 describe('listTablesMetadata', () => {
   it('returns tables list', async () => {

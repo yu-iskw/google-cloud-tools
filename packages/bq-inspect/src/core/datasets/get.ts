@@ -1,7 +1,7 @@
 import { catalogErrorEnvelope } from '../shared/catalog-error';
 import { buildToolEnvelope } from '../shared/envelope';
 
-import type { BigQueryInspectionClient, DatasetRef } from '../../bigquery/client/job-client';
+import type { BigQueryInspectionClient, DatasetRef } from '../../bigquery/port/inspection-client';
 import type { CatalogResourceResponse } from '../shared/types';
 
 export async function getDatasetMetadata(

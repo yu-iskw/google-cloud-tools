@@ -129,15 +129,15 @@ ${PARAMS_DISCOVERY}
 
 Params (see --input-schema):
   projectId            Required
-  location, minCreationTime, maxCreationTime, pageToken, maxResults, allUsers
-  minSlotMs, minBytesBilled, state, labels, parentJobId
+  API (jobs.list): minCreationTime, maxCreationTime, pageToken, maxResults, allUsers, state, parentJobId
+  Post-list (current page): minSlotMs, minBytesBilled, labels
   impersonateServiceAccount, impersonateDelegates
 
   In shared projects use allUsers: true or jobs.list may return an empty array.
-  Copy jobReference.location from list output into job view commands.
+  Copy jobReference.location from list output into job view commands (jobs.get requires location for non-default regions).
 
 Examples:
-  bq-inspect jobs list --params '{"projectId":"my-proj","location":"US","maxResults":50}'
+  bq-inspect jobs list --params '{"projectId":"my-proj","allUsers":true,"maxResults":50}'
   bq-inspect jobs list --params @./jobs-list.json
 `.trim();
 

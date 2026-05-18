@@ -101,12 +101,13 @@ export const jobsListOutputSchema = {
       additionalProperties: true,
       properties: {
         projectId: { type: 'string', minLength: 1 },
-        location: { type: 'string', minLength: 1 },
         allUsers: { type: 'boolean' },
         minCreationTime: { type: 'number' },
         maxCreationTime: { type: 'number' },
         pageToken: { type: 'string' },
         maxResults: { type: 'number' },
+        state: { type: 'string', minLength: 1 },
+        parentJobId: { type: 'string', minLength: 1 },
         filters: { type: 'object' },
         impersonateServiceAccount: { type: 'string', minLength: 1 },
         impersonateDelegates: {

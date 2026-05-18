@@ -4,7 +4,7 @@ import { BqInspectFailure, createBqInspectError } from '../shared/errors';
 
 import { getDatasetMetadata } from './get';
 
-import type { BigQueryInspectionClient } from '../../bigquery/client/job-client';
+import type { BigQueryInspectionClient } from '../../bigquery/port/inspection-client';
 
 describe('getDatasetMetadata', () => {
   it('returns dataset metadata', async () => {

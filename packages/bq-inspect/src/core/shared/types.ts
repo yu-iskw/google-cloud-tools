@@ -72,13 +72,11 @@ export type BqInspectErrorCode =
   | 'BQINSPECT_LOCATION_REQUIRED'
   | 'BQINSPECT_PERMISSION_DENIED';
 
-/** Serializable echo of job list filters for JSON output */
+/** Serializable echo of post-list filters (applied client-side after jobs.list). */
 export interface JobListFiltersEcho {
   minSlotMs?: string;
   minBytesBilled?: string;
-  state?: string;
   labels?: Record<string, string>;
-  parentJobId?: string;
 }
 
 export interface ListJobsResponse {
@@ -90,12 +88,13 @@ export interface ListJobsResponse {
   };
   request: {
     projectId: string;
-    location?: string;
     allUsers?: boolean;
     minCreationTime?: number;
     maxCreationTime?: number;
     pageToken?: string;
     maxResults?: number;
+    state?: string;
+    parentJobId?: string;
     filters: JobListFiltersEcho;
     impersonateServiceAccount?: string;
     impersonateDelegates?: string[];

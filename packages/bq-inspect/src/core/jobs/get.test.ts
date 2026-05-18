@@ -9,7 +9,7 @@ import { BqInspectFailure, createBqInspectError } from '../shared/errors';
 
 import { inspectJobs } from './get';
 
-import type { BigQueryJobClient } from '../../bigquery/client/job-client';
+import type { BigQueryJobClient } from '../../bigquery/port/inspection-client';
 
 describe('inspectJobs', () => {
   it('produces the RFC envelope shape for a single job with summary view by default', async () => {

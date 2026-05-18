@@ -6,7 +6,7 @@ import { getTableMetadata } from '../../core/tables/get';
 import { getCommandSchema } from '../../schemas/command-schemas';
 import { createSdkInspectionClientFromInput } from '../command-shared';
 
-import type { BigQueryInspectionClient } from '../../bigquery/client/job-client';
+import type { BigQueryInspectionClient } from '../../bigquery/port/inspection-client';
 import type { ParsedCatalogInput } from '../../cli/input/input-parsers';
 import type { tablesGetInputSchema } from '../../schemas/input-schema';
 import type { catalogResourceOutputSchema } from '../../schemas/output-schema';

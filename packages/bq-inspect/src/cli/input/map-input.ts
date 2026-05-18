@@ -7,7 +7,7 @@ import type {
   ParsedJobsListInput,
   ParsedJobsViewInput,
 } from './parsed-input-types';
-import type { ListJobsRequest } from '../../bigquery/client/job-client';
+import type { ListJobsRequest } from '../../bigquery/types/list-jobs';
 import type { JobFilters } from '../../core/jobs/filter';
 import type { JobRef } from '../../core/shared/types';
 
@@ -48,9 +48,6 @@ export function mapJobsViewInput(obj: Record<string, unknown>): ParsedJobsViewIn
 export function mapJobsListInput(obj: Record<string, unknown>): ParsedJobsListInput {
   const listRequest: ListJobsRequest = {
     projectId: String(obj.projectId).trim(),
-    ...(typeof obj.location === 'string' && obj.location.trim().length > 0
-      ? { location: obj.location.trim() }
-      : {}),
     ...(obj.allUsers === true ? { allUsers: true } : {}),
     ...(typeof obj.minCreationTime === 'string'
       ? { minCreationTime: Date.parse(obj.minCreationTime) }
@@ -62,6 +59,12 @@ export function mapJobsListInput(obj: Record<string, unknown>): ParsedJobsListIn
       ? { pageToken: obj.pageToken.trim() }
       : {}),
     ...(typeof obj.maxResults === 'number' ? { maxResults: obj.maxResults } : {}),
+    ...(typeof obj.state === 'string' && obj.state.trim().length > 0
+      ? { state: obj.state.trim() }
+      : {}),
+    ...(typeof obj.parentJobId === 'string' && obj.parentJobId.trim().length > 0
+      ? { parentJobId: obj.parentJobId.trim() }
+      : {}),
   };
 
   const labels =
@@ -77,13 +80,7 @@ export function mapJobsListInput(obj: Record<string, unknown>): ParsedJobsListIn
     ...(typeof obj.minBytesBilled === 'string'
       ? { minBytesBilled: BigInt(obj.minBytesBilled) }
       : {}),
-    ...(typeof obj.state === 'string' && obj.state.trim().length > 0
-      ? { state: obj.state.trim() }
-      : {}),
     ...(labels === undefined ? {} : { labels }),
-    ...(typeof obj.parentJobId === 'string' && obj.parentJobId.trim().length > 0
-      ? { parentJobId: obj.parentJobId.trim() }
-      : {}),
   };
 
   return {

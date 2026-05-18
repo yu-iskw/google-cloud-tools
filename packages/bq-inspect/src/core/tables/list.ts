@@ -1,7 +1,7 @@
 import { buildToolEnvelope } from '../shared/envelope';
 import { BqInspectFailure } from '../shared/errors';
 
-import type { BigQueryInspectionClient, DatasetRef } from '../../bigquery/client/job-client';
+import type { BigQueryInspectionClient, DatasetRef } from '../../bigquery/port/inspection-client';
 import type { BqInspectError, TablesListResponse } from '../shared/types';
 
 export async function listTablesMetadata(
