@@ -143,19 +143,6 @@ Prefer state-based tests on observable JSON output; avoid new mocks unless neces
 
 Releases use [npm trusted publishing](https://docs.npmjs.com/trusted-publishers/) (OIDC) from GitHub Actions — no long-lived `NPM_TOKEN`.
 
-### One-time npm setup
-
-On [npmjs.com](https://www.npmjs.com/) → **bq-inspect** → Settings → **Trusted publishing** → GitHub Actions:
-
-| Field             | Value                        |
-| ----------------- | ---------------------------- |
-| Repository        | `yu-iskw/google-cloud-tools` |
-| Workflow filename | `publish.yml`                |
-
-Register the **caller** workflow (`publish.yml`), not `_reusable-publish-package.yml`. npm validates OIDC against the calling workflow when using `workflow_call`.
-
-After OIDC works, you may set **Publishing access** to require 2FA and disallow tokens; trusted publishing still works.
-
 ### Release steps
 
 1. Bump `version` in [`package.json`](package.json) and merge to `main`.
