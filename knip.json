@@ -1,10 +1,10 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
-  "ignore": [".trunk/**", "coverage/**"],
+  "ignore": [".trunk/**"],
   "ignoreBinaries": ["grype"],
   "workspaces": {
     ".": {
-      "entry": ["stylelint.config.mjs"],
+      "entry": ["stylelint.config.mjs", "vitest.shared.ts"],
       "project": ["**/*.{js,cjs,mjs,ts,cts,mts}", "!packages/**", "!.trunk/**", "!node_modules/**"]
     },
     "packages/*": {

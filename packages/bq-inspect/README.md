@@ -242,7 +242,7 @@ Prefer narrow read access:
 
 ## Library (TypeScript)
 
-This package also exports TypeScript APIs (inspect/list/catalog helpers, types, JSON Schema constants). See published `types` and `exports` on npm, or the source entry [`src/index.ts`](src/index.ts). For development in this monorepo, see [repository CONTRIBUTING](../../CONTRIBUTING.md) and [bq-inspect CONTRIBUTING](CONTRIBUTING.md).
+This package also exports TypeScript APIs (inspect/list/catalog helpers, types, JSON Schema constants). The library entry supports both `import` and `require`; the published build is CommonJS under the hood. See published `types` and `exports` on npm, or the source entry [`src/index.ts`](src/index.ts). For development in this monorepo, see [repository CONTRIBUTING](../../CONTRIBUTING.md) and [bq-inspect CONTRIBUTING](CONTRIBUTING.md).
 
 ## Security notes
 

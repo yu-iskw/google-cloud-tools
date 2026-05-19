@@ -87,6 +87,9 @@ jobs:
           fi
           echo "Using npm $(npm --version)"
 
+      # NODE_AUTH_TOKEN: '' stops setup-node from using GITHUB_TOKEN as npm auth.
+      # pnpm >= 11.0.7 required so OIDC trusted publishing overrides empty _authToken
+      # (see root package.json packageManager).
       - name: Publish to npm (OIDC)
         env:
           NODE_AUTH_TOKEN: ''

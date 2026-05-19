@@ -9,55 +9,55 @@ export interface TableReference {
   tableId?: string;
 }
 
-export interface DatasetReference {
+interface DatasetReference {
   projectId?: string;
   datasetId?: string;
 }
 
-export interface RoutineReference {
+interface RoutineReference {
   projectId?: string;
   datasetId?: string;
   routineId?: string;
 }
 
-export interface RowAccessPolicyReference {
+interface RowAccessPolicyReference {
   projectId?: string;
   datasetId?: string;
   tableId?: string;
   policyId?: string;
 }
 
-export interface PropertyGraphReference {
+interface PropertyGraphReference {
   projectId?: string;
   graphId?: string;
 }
 
-export interface JobReference {
+interface JobReference {
   projectId?: string;
   jobId?: string;
   location?: string;
 }
 
-export interface ErrorProto {
+interface ErrorProto {
   reason?: string;
   location?: string;
   debugInfo?: string;
   message?: string;
 }
 
-export interface JobStatus {
+interface JobStatus {
   state?: string;
   errorResult?: ErrorProto;
   errors?: ErrorProto[];
 }
 
-export interface DmlStats {
+interface DmlStats {
   insertedRowCount?: string;
   deletedRowCount?: string;
   updatedRowCount?: string;
 }
 
-export interface ExplainQueryStage {
+interface ExplainQueryStage {
   name?: string;
   id?: string;
   startMs?: string;
@@ -78,7 +78,7 @@ export interface ExplainQueryStage {
   computeMode?: string;
 }
 
-export interface QueryTimelineSample {
+interface QueryTimelineSample {
   elapsedMs?: string;
   totalSlotMs?: string;
   pendingUnits?: string;
@@ -111,7 +111,7 @@ export interface JobStatisticsQuery {
 }
 
 /** Opaque job-kind stat blocks; projections pass them through by key. */
-export type JobStatisticsExtension = Record<string, unknown>;
+type JobStatisticsExtension = Record<string, unknown>;
 
 export interface JobStatistics extends JobStatisticsExtension {
   creationTime?: string;
@@ -135,12 +135,12 @@ export interface JobStatistics extends JobStatisticsExtension {
   metadataCacheStatistics?: JobStatisticsExtension;
 }
 
-export interface JobConfigurationQuery {
+interface JobConfigurationQuery {
   query?: string;
   statementType?: string;
 }
 
-export interface JobConfiguration {
+interface JobConfiguration {
   query?: JobConfigurationQuery;
 }
 
