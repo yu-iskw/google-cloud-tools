@@ -67,6 +67,17 @@ pnpm build
 node dist/cli.js --help
 ```
 
+### Manual smoke (optional)
+
+After a CLI or BigQuery client change, you can re-run a short live check against a project you control (ADC via `gcloud auth application-default login`, or CI credentials). Do not commit project IDs, service account emails, or params files with secrets.
+
+1. `pnpm --filter bq-inspect build`
+2. `node packages/bq-inspect/dist/cli.js jobs list --params '{"projectId":"YOUR_PROJECT","allUsers":true,"maxResults":10}'` (add `impersonateServiceAccount` in JSON when testing impersonation)
+3. Copy `jobReference.location` from list output into a job view, e.g. `jobs summary`
+4. Spot-check `datasets get` and `tables list` on a dataset you can read
+
+See [README.md — Troubleshooting](README.md#troubleshooting) for empty lists, 403 vs not-found on `jobs.get`, and post-filter behavior.
+
 ## CLI and agent workflow
 
 Operational commands accept only:

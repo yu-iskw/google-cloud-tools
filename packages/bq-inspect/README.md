@@ -89,20 +89,12 @@ EOF
 # Set location from jobs.list jobReference (required for non-default regions)
 bq-inspect jobs summary --params '{"jobs":[{"projectId":"YOUR_PROJECT","jobId":"YOUR_JOB_ID","location":"asia-northeast1"}]}'
 
-# SQL and JobConfigurationQuery
-bq-inspect jobs query --params '{"jobs":[{"projectId":"YOUR_PROJECT","jobId":"YOUR_JOB_ID"}]}'
-
-# Performance: queryPlan, timeline, performanceInsights, etc.
-bq-inspect jobs performance --params '{"jobs":[{"projectId":"YOUR_PROJECT","jobId":"YOUR_JOB_ID"}]}'
-
-# Lineage: referencedTables, routines, destinations
-bq-inspect jobs lineage --params '{"jobs":[{"projectId":"YOUR_PROJECT","jobId":"YOUR_JOB_ID"}]}'
-
-# Impact: dmlStats, load/export/ML/search stats
-bq-inspect jobs impact --params '{"jobs":[{"projectId":"YOUR_PROJECT","jobId":"YOUR_JOB_ID"}]}'
-
-# Full Job JSON from the API
-bq-inspect jobs get --params '{"jobs":[{"projectId":"YOUR_PROJECT","jobId":"YOUR_JOB_ID"}]}'
+# Other job views: include location from jobs.list when jobs are regional (same shape as summary above)
+bq-inspect jobs query --params '{"jobs":[{"projectId":"YOUR_PROJECT","jobId":"YOUR_JOB_ID","location":"asia-northeast1"}]}'
+bq-inspect jobs performance --params '{"jobs":[{"projectId":"YOUR_PROJECT","jobId":"YOUR_JOB_ID","location":"asia-northeast1"}]}'
+bq-inspect jobs lineage --params '{"jobs":[{"projectId":"YOUR_PROJECT","jobId":"YOUR_JOB_ID","location":"asia-northeast1"}]}'
+bq-inspect jobs impact --params '{"jobs":[{"projectId":"YOUR_PROJECT","jobId":"YOUR_JOB_ID","location":"asia-northeast1"}]}'
+bq-inspect jobs get --params '{"jobs":[{"projectId":"YOUR_PROJECT","jobId":"YOUR_JOB_ID","location":"asia-northeast1"}]}'
 ```
 
 ### List jobs (`jobs list`)
@@ -203,15 +195,41 @@ bq-inspect schema output --format json-schema
 
 Errors are JSON on stderr with a `code` field. Schema validation failures include `schemaErrors` with JSON Pointer paths.
 
-| Code                          | Typical cause                                                         |
-| ----------------------------- | --------------------------------------------------------------------- |
-| `BQINSPECT_INPUT_INVALID`     | Bad `--params` or flags; schema validation                            |
-| `BQINSPECT_PERMISSION_DENIED` | IAM or ADC; on `jobs.get`, may mean missing `location` on the job ref |
-| `BQINSPECT_JOB_NOT_FOUND`     | Missing job or catalog resource                                       |
-| `BQINSPECT_LOCATION_REQUIRED` | Reserved; prefer `location` on job refs (see hints on 403)            |
-| `BQINSPECT_API_RATE_LIMITED`  | HTTP 429; retryable                                                   |
-| `BQINSPECT_API_UNAVAILABLE`   | Transient API / 5xx                                                   |
-| `BQINSPECT_INTERNAL`          | Unexpected CLI failure                                                |
+| Code                          | Typical cause                                                                                                  |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `BQINSPECT_INPUT_INVALID`     | Bad `--params` or flags; schema validation                                                                     |
+| `BQINSPECT_PERMISSION_DENIED` | IAM or ADC; on `jobs.get`, often missing `location` or wrong job ref (see [Troubleshooting](#troubleshooting)) |
+| `BQINSPECT_JOB_NOT_FOUND`     | Missing job or catalog resource (HTTP 404 from the API)                                                        |
+| `BQINSPECT_LOCATION_REQUIRED` | Reserved; prefer `location` on job refs (see hints on 403)                                                     |
+| `BQINSPECT_API_RATE_LIMITED`  | HTTP 429; retryable                                                                                            |
+| `BQINSPECT_API_UNAVAILABLE`   | Transient API / 5xx                                                                                            |
+| `BQINSPECT_INTERNAL`          | Unexpected CLI failure                                                                                         |
+
+## Troubleshooting
+
+Symptom-first checks when JSON looks wrong but the CLI is working:
+
+**`jobs list` returns `"jobs": []`**
+
+- In shared sandboxes, set `"allUsers": true` in `--params` (default list is only your user’s jobs).
+- With impersonation: the caller needs **Service Account Token Creator** on the target; the impersonated identity needs **BigQuery job list** access (`roles/bigquery.resourceViewer` or equivalent).
+
+**Job view commands return per-job `BQINSPECT_PERMISSION_DENIED` (403)**
+
+- **`location` omitted:** copy `jobReference.location` from `jobs list` into each job ref (required for many regional jobs).
+- **`location` set:** BigQuery may still return **403 Access Denied** for a wrong `jobId`, wrong region, or IAM—not only missing `location`. Confirm `projectId` and `jobId` from `jobs list`; do not assume the code will be `BQINSPECT_JOB_NOT_FOUND`.
+
+**`BQINSPECT_JOB_NOT_FOUND`**
+
+- Typical for a wrong **project** on a job ref, a missing **dataset** or **table**, or catalog APIs returning HTTP 404.
+
+**Post-filters on `jobs list`** (`minSlotMs`, `minBytesBilled`, `labels`)
+
+- Applied to the **current API page only**. If results are empty, increase `maxResults` or follow `pageToken` until matches appear.
+
+**Multi-job `--params`**
+
+- The process can exit **0** while individual entries in `jobs[]` include `errors`. Inspect each job element.
 
 ## Authentication
 

@@ -26,14 +26,14 @@ describe('hintForApiError', () => {
     expect(hint).toContain('Add location on each job ref');
   });
 
-  it('does not append location guidance when location is set', () => {
+  it('appends job ref verification when jobs.get permission denied with location set', () => {
     const hint = hintForApiError('BQINSPECT_PERMISSION_DENIED', 'bigquery.jobs.get', {
       jobRef: { projectId: 'p', jobId: 'j', location: 'US' },
     });
 
-    expect(hint).toBe(
-      'Grant roles/bigquery.resourceViewer or a custom role with jobs.get/jobs.list.',
-    );
+    expect(hint).toContain('resourceViewer');
+    expect(hint).toContain('Confirm projectId and jobId from jobs.list');
+    expect(hint).not.toContain('Add location on each job ref');
   });
 
   it('returns undefined for non-permission errors without job context', () => {
