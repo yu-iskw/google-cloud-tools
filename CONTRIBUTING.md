@@ -40,11 +40,11 @@ For agent-oriented lint order and repo conventions, see [AGENTS.md](AGENTS.md).
 
 ## Packages
 
-| Package                            | npm name     | User docs                               | Developer guide                                     |
-| ---------------------------------- | ------------ | --------------------------------------- | --------------------------------------------------- |
-| [bq-inspect](packages/bq-inspect/) | `bq-inspect` | [README](packages/bq-inspect/README.md) | [CONTRIBUTING](packages/bq-inspect/CONTRIBUTING.md) |
+| Package                            | npm name     | User docs                               | Developer guide                                                                                                                       |
+| ---------------------------------- | ------------ | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| [bq-inspect](packages/bq-inspect/) | `bq-inspect` | [README](packages/bq-inspect/README.md) | [CONTRIBUTING](packages/bq-inspect/CONTRIBUTING.md) (includes [npm publish](packages/bq-inspect/CONTRIBUTING.md#publishing) via OIDC) |
 
-When adding a new package, add a row here and a `packages/<name>/CONTRIBUTING.md` if the package needs more than shared workspace steps.
+When adding a new package, add a row here and a `packages/<name>/CONTRIBUTING.md` if the package needs more than shared workspace steps. Add a dedicated `.github/workflows/publish-<name>.yml` that calls `_reusable-publish-package.yml` when the package is published to npm.
 
 ## Pull request checklist (repository)
 

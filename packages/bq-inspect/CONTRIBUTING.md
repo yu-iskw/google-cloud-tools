@@ -150,18 +150,36 @@ Keep [README.md](README.md) examples aligned with `cli/usage.ts`; end users trea
 
 Prefer state-based tests on observable JSON output; avoid new mocks unless necessary.
 
-## Publishing
-
-Releases use [npm trusted publishing](https://docs.npmjs.com/trusted-publishers/) (OIDC) from GitHub Actions — no long-lived `NPM_TOKEN`.
-
 ### Release steps
 
 1. Bump `version` in [`package.json`](package.json) and merge to `main`.
 2. Build and verify locally: `pnpm --filter bq-inspect build`, `pnpm test -- packages/bq-inspect`, and `npm pack --dry-run` in this directory.
-3. Create a GitHub Release with tag **`bq-inspect-v{version}`** (e.g. `bq-inspect-v0.2.1` for version `0.2.1`). The publish workflow checks that the tag matches the package version.
-4. Publishing runs via [`.github/workflows/publish.yml`](../../.github/workflows/publish.yml) on `release: published`, or manually via **workflow_dispatch**.
+3. Create a GitHub Release with tag **`bq-inspect-v{version}`** (e.g. `bq-inspect-v0.2.1` for version `0.2.1`). Tags must match the `bq-inspect-v*` prefix and equal `bq-inspect-v` plus the `version` field in [`package.json`](package.json).
+4. Publishing runs via [`.github/workflows/publish-bq-inspect.yml`](../../.github/workflows/publish-bq-inspect.yml) on **`release: published` only** (no manual workflow dispatch).
+5. The reusable workflow builds and tests in a **verify** job, then runs **publish** only after the **`release`** environment is satisfied (approval if required reviewers are configured).
 
 Provenance attestations are generated automatically for public packages published via OIDC from this public repository (no `--provenance` flag needed).
+
+### Publish infrastructure (one-time setup)
+
+Maintainers must configure GitHub and npm once (or after changing the publish workflow path):
+
+**GitHub** (repository **Settings → Environments → `release`**):
+
+- Create environment **`release`** if it does not exist.
+- Optionally restrict **Deployment branches** to `main`.
+- Optionally add **Required reviewers** so `pnpm publish` waits for approval after verify succeeds.
+
+| Field             | Value                                                                                             |
+| ----------------- | ------------------------------------------------------------------------------------------------- |
+| Provider          | GitHub Actions                                                                                    |
+| Repository        | `yu-iskw/google-cloud-tools`                                                                      |
+| Workflow filename | `publish-bq-inspect.yml` (filename only; npm validates the entry workflow, not the reusable file) |
+| Environment       | `release`                                                                                         |
+
+Because publish uses `workflow_call`, npm OIDC checks the **entry** workflow ([`publish-bq-inspect.yml`](../../.github/workflows/publish-bq-inspect.yml)), not [`_reusable-publish-package.yml`](../../.github/workflows/_reusable-publish-package.yml). See [npm trusted publishers — Troubleshooting](https://docs.npmjs.com/trusted-publishers#troubleshooting).
+
+Shared build/test/publish steps live in [`.github/workflows/_reusable-publish-package.yml`](../../.github/workflows/_reusable-publish-package.yml).
 
 ## Pull request checklist
 
