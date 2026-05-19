@@ -18,6 +18,21 @@ Default incremental Trunk: **`pnpm lint`** (`trunk check -y`). Prefer **`pnpm li
 
 See [`AGENTS.md`](../../../AGENTS.md) for the layered harness (for example ESLint with `eslint-plugin-security` alongside Trivy/OSV).
 
+## CodeQL vs dependency scan (do not conflate)
+
+Two independent security gates; each has its own pass/fail:
+
+| Gate             | Command                 | Skill                                     |
+| ---------------- | ----------------------- | ----------------------------------------- |
+| **Dependencies** | `pnpm lint:security`    | This skill (OSV-scanner, Trivy via Trunk) |
+| **Source code**  | `pnpm run codeql:local` | [`codeql-fix`](../codeql-fix/SKILL.md)    |
+
+- **This skill** scans the lockfile and related manifests for known CVEs—not application logic.
+- **CodeQL** runs query suites on JavaScript/TypeScript source; clean SARIF does **not** mean the lockfile is CVE-free.
+- **Verifier order:** build → lint → test → **security-scan** → **codeql-fix**; treat each phase separately.
+
+Example: CodeQL can report zero findings while `pnpm lint:security` still fails on a transitive dependency (for example `brace-expansion`).
+
 ## When to use
 
 - Scan for CVEs or vulnerable dependencies

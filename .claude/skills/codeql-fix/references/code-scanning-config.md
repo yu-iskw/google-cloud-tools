@@ -5,7 +5,7 @@ This skill ships a YAML template and a small shell renderer under the same direc
 - **Template:** [`assets/code-scanning-config.template.yml`](../assets/code-scanning-config.template.yml)
 - **Renderer:** [`scripts/render-code-scanning-config.sh`](../scripts/render-code-scanning-config.sh)
 
-Local CodeQL in this repository is **CLI-driven** for **JavaScript and TypeScript**: primary extraction uses `codeql database create` with `--language=javascript-typescript` and `--source-root .` (do not pass `--command` for JS/TS-only extraction). See [`SKILL.md`](../SKILL.md) and [`dev/codeql.sh`](../../../../dev/codeql.sh) for the full `database create` / `database analyze` flow.
+Local CodeQL in this repository is **CLI-driven** for **JavaScript and TypeScript**: primary extraction uses `codeql database create` with `--language=javascript-typescript` and `--source-root .` (do not pass `--command` for JS/TS-only extraction). See [`SKILL.md`](../SKILL.md) and [`scripts/codeql.sh`](../scripts/codeql.sh) for the full `database create` / `database analyze` flow.
 
 When `CODEQL_CONFIG_REPO_SCAN` is enabled (default), the renderer adds common noise paths if present (for example `.git`, `node_modules`, `.codeql_db`, `packages/*/dist`, virtualenvs, Python caches, coverage output). It intentionally stays minimal for this template; use comma-separated **`CODEQL_PATHS_IGNORE`** (and optional extra CLI arguments to the script) for monorepo build dirs, e2e artifacts, Terraform caches, or other repo-specific trees.
 

@@ -42,7 +42,7 @@ This verifier **must delegate every phase to the corresponding skill**. If the `
 Run these phases **in this order**. Do not skip a phase because an earlier one failed unless the user’s task explicitly scopes you (for example “lint only”); otherwise fix forward when possible.
 
 1. **`build-and-fix`** — build and packaging verification and fix loop.
-2. **`lint-and-fix`** — Trunk / linter verification and fix loop.
+2. **`lint-and-fix`** — ESLint-first then Trunk verification and fix loop (see that skill’s loop logic).
 3. **`test-and-fix`** — unit test verification and fix loop.
 4. **`security-scan`** — dependency and filesystem vulnerability scan and triage.
 5. **`codeql-fix`** — local CodeQL analysis and finding remediation (including re-scan as the skill describes).

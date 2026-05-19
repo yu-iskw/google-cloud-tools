@@ -66,6 +66,9 @@ const sharedTsRules = Object.assign({}, tseslint.configs.recommended.rules, {
     'error',
     { prefer: 'type-imports', fixStyle: 'separate-type-imports' },
   ],
+  '@typescript-eslint/explicit-module-boundary-types': 'error',
+  // v8 successor to sort-type-union-intersection-members (auto-fix union/intersection order)
+  '@typescript-eslint/sort-type-constituents': 'error',
   // Security (core + plugin; Trunk still runs Trivy/OSV)
   'no-eval': 'error',
   'no-implied-eval': 'error',
@@ -102,6 +105,8 @@ export default [
       '.serena/**',
       '.trunk/**',
       '**/*.generated.ts',
+      '**/vitest.config.ts',
+      'vitest.shared.ts',
     ],
   },
   {

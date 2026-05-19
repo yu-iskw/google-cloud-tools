@@ -19,8 +19,7 @@ OUT="$2"
 shift 2
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-SKILL_ROOT=$(cd "${SCRIPT_DIR}/.." && pwd)
-TEMPLATE="${SKILL_ROOT}/assets/code-scanning-config.template.yml"
+TEMPLATE="${SCRIPT_DIR}/../assets/code-scanning-config.template.yml"
 
 if [[ ! -f ${TEMPLATE} ]]; then
 	echo "Missing template: ${TEMPLATE}" >&2
@@ -45,7 +44,6 @@ trap cleanup EXIT
 
 add_path() {
 	local p="${1//[$'\t\r\n']/}"
-	# Trim leading/trailing whitespace without spawning sed.
 	p="${p#"${p%%[![:space:]]*}"}"
 	p="${p%"${p##*[![:space:]]}"}"
 	[[ -z ${p} ]] && return
@@ -75,6 +73,10 @@ if [[ ${_scan} == "1" || ${_scan} == "true" ]]; then
 		add_path "packages/*/dist"
 	fi
 	[[ -d "${REPO}/coverage" ]] && add_path "coverage"
+	add_path "**/coverage"
+	if compgen -G "${REPO}/packages/*/coverage" >/dev/null 2>&1; then
+		add_path "packages/*/coverage"
+	fi
 	[[ -d "${REPO}/htmlcov" ]] && add_path "htmlcov"
 	[[ -d "${REPO}/.pytest_cache" ]] && add_path ".pytest_cache"
 	[[ -d "${REPO}/.ruff_cache" ]] && add_path ".ruff_cache"
@@ -105,7 +107,6 @@ fi
 		echo "paths-ignore:"
 		while IFS= read -r p || [[ -n ${p-} ]]; do
 			[[ -z ${p-} ]] && continue
-			# Quote values so YAML does not treat '*' (e.g. **/.venv) as alias syntax.
 			_esc=${p//\\/\\\\}
 			_esc=${_esc//\"/\\\"}
 			printf '  - "%s"\n' "${_esc}"
