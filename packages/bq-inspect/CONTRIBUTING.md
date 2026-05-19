@@ -150,10 +150,6 @@ Keep [README.md](README.md) examples aligned with `cli/usage.ts`; end users trea
 
 Prefer state-based tests on observable JSON output; avoid new mocks unless necessary.
 
-## Publishing
-
-Releases use [npm trusted publishing](https://docs.npmjs.com/trusted-publishers/) (OIDC) from GitHub Actions — no long-lived `NPM_TOKEN`. The publish job runs in the GitHub Actions **`release`** environment (see [one-time setup](#publish-infrastructure-one-time-setup) below).
-
 ### Release steps
 
 1. Bump `version` in [`package.json`](package.json) and merge to `main`.
