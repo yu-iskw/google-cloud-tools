@@ -170,8 +170,6 @@ Maintainers must configure GitHub and npm once (or after changing the publish wo
 - Optionally restrict **Deployment branches** to `main`.
 - Optionally add **Required reviewers** so `pnpm publish` waits for approval after verify succeeds.
 
-**npm** ([`bq-inspect` package](https://www.npmjs.com/package/bq-inspect) → **Publishing access** → **Trusted publishing**):
-
 | Field             | Value                                                                                             |
 | ----------------- | ------------------------------------------------------------------------------------------------- |
 | Provider          | GitHub Actions                                                                                    |
