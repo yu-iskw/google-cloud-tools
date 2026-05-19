@@ -12,25 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: Publish
+name: Publish bq-inspect
 
 on:
   release:
     types: [published]
-  workflow_dispatch:
 
 concurrency:
-  group: publish
+  group: publish-bq-inspect
   cancel-in-progress: false
 
 permissions:
   contents: read
-  id-token: write
 
 jobs:
   validate-release-tag:
     name: Verify release tag matches package version
-    if: github.event_name == 'release'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -38,8 +35,15 @@ jobs:
 
       - name: Verify release tag
         run: |
-          PKG_VERSION=$(node -p "require('./packages/bq-inspect/package.json').version")
           TAG="${{ github.event.release.tag_name }}"
+          case "${TAG}" in
+            bq-inspect-v*) ;;
+            *)
+              echo "Release tag must match bq-inspect-v*, got ${TAG}"
+              exit 1
+              ;;
+          esac
+          PKG_VERSION=$(node -p "require('./packages/bq-inspect/package.json').version")
           EXPECTED="bq-inspect-v${PKG_VERSION}"
           if [ "${TAG}" != "${EXPECTED}" ]; then
             echo "Release tag must be ${EXPECTED}, got ${TAG}"
@@ -49,10 +53,6 @@ jobs:
   publish-bq-inspect:
     name: Publish bq-inspect to npm
     needs: validate-release-tag
-    if: >-
-      always() &&
-      (needs.validate-release-tag.result == 'success' ||
-       needs.validate-release-tag.result == 'skipped')
     permissions:
       contents: read
       id-token: write
@@ -61,3 +61,4 @@ jobs:
       package_filter: bq-inspect
       package_directory: packages/bq-inspect
       test_path: packages/bq-inspect
+      environment: release
